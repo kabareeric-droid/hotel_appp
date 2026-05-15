@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOTEL ETS MARANATHA</title>
+    <style>
+        :root { --primary: #002244; --accent: #d97706; --success: #16a34a; --danger: #dc2626; --bg: #f4f6f9; }
+        body { background-color: var(--bg); padding: 12px; font-family: -apple-system, system-ui, sans-serif; max-width: 36rem; margin: 0 auto; color: #334155; line-height: 1.5; }
+        h1 { text-align: center; font-size: 1.2rem; font-weight: 800; color: var(--primary); text-transform: uppercase; margin-bottom: 1rem; border-bottom: 3px solid var(--accent); padding-bottom: 8px; }
+        .card { background: white; padding: 16px; border-radius: 14px; box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04); margin-bottom: 14px; border: 1px solid #e2e8f0; border-left: 5px solid black; }
+        .title { font-size: 0.95rem; font-weight: 700; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; color: var(--primary); text-transform: uppercase; border-bottom: 1px solid #f1f5f9; padding-bottom: 6px; }
+        label { display: block; font-size: 0.7rem; font-weight: 700; color: #64748b; margin: 6px 0 2px 0; text-transform: uppercase; }
+        select, input, textarea { width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 10px; background-color: #f8fafc; margin-bottom: 6px; box-sizing: border-box; font-size: 0.9rem; color: #1e293b; outline: none; }
+        button { width: 100%; padding: 10px; border-radius: 10px; border: none; font-weight: 700; color: white; cursor: pointer; font-size: 0.9rem; margin-top: 4px; }
+        .btn-blue { background: #0e7490; } .btn-green { background: var(--success); } .btn-red { background: var(--danger); } .btn-orange { background: var(--accent); } .btn-purple { background: #7c3aed; }
+        .btn-admin { width: auto; padding: 6px 16px; background-color: var(--primary); color: white; font-size: 0.75rem; border-radius: 8px; font-weight: 700; margin: 0; text-transform: uppercase; border: none; }
+        .hidden { display: none !important; }
+        .row-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; }
+        .badge { padding: 3px 8px; font-size: 0.7rem; font-weight: 700; border-radius: 8px; }
+        .bg-g { background:#bbf7d0; color:#14532d; } .bg-r { background:#fecdd3; color:#881337; } .bg-o { background:#ffedd5; color:#7c2d12; } .bg-p { background:#f3e8ff; color:#581c87; }
+        .grid-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; text-align: center; }
+        .stat-box { padding: 12px 2px; border-radius: 10px; font-weight: 800; font-size: 0.9rem; border: 1px solid #e2e8f0; background:#f8fafc; }
+        .stat-box span { display: block; font-size: 0.65rem; color: #64748b; text-transform: uppercase; margin-bottom: 2px; }
+        .chat-box { background: #f8fafc; padding: 8px; border-radius: 10px; max-height: 90px; overflow-y: auto; margin-bottom: 6px; border: 1px solid #e2e8f0; font-size: 0.8rem; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 6px; }
+        th, td { border: 1px solid #e2e8f0; padding: 8px; text-align: left; }
+        th { background-color: var(--primary); color: white; font-weight: 700; }
+        tr:nth-child(even) { background-color: #f8fafc; }
+        .date-header { background-color: #e2e8f0; color: var(--primary); padding: 4px 8px; font-weight: 800; font-size: 0.75rem; text-transform: uppercase; border-radius: 6px; margin-top: 10px; }
+        .menu-bar { display: flex; gap: 6px; margin-bottom: 14px; background: white; padding: 8px; border-radius: 12px; border: 1px solid #e2e8f0; justify-content: space-around; }
+        .menu-btn { background: #f1f5f9; color: var(--primary); padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; width: auto; margin: 0; border: none; }
+        .menu-btn.active { background: var(--accent); color: white; }
+    </style>
+</head>
+<body>
+
+    <h1>🏨 HOTEL ETS MARANATHA (ESPACE ROYAL)</h1>
+    
+    <!-- MENU DE NAVIGATION (IDENTIQUE À VOTRE PHOTO) -->
+    <div class="menu-bar">
+        <button onclick="basculerMenu('gerant')" id="mBtn-gerant" class="menu-btn active">Menu Gérant</button>
+        <button onclick="basculerMenu('patron')" id="mBtn-patron" class="menu-btn">Menu Patron</button>
+        <button onclick="basculerMenu('stock')" id="mBtn-stock" class="menu-btn">Tarifs/Stocks</button>
+    </div>
+
+    <!-- ESPACE GÉRANT -->
+    <div id="section-gerant" class="card">
+        <div class="title">
+            <span>🛒 SESSION CAISSE : KABUO IRENE</span>
+            <button onclick="ouvrirGerant()" id="btnGerant" class="btn-admin">OUVRIR</button>
+        </div>
+        <div id="espaceGerant" class="hidden">
+            <label>Date opérationnelle :</label>
+            <input type="date" id="dateVente">
+
+            <!-- MODULE VERT D'EXPORTATION S'OUVRANT AVEC LA SESSION -->
+            <div style="background: #f0fdf4; padding: 12px; border-radius: 10px; margin-bottom: 8px; border: 1px solid #bbf7d0; text-align: center;">
+                <span style="font-weight:700; font-size:0.8rem; color:#166534;">📲 TRANSMISSION DIRECTE AU PATRON</span>
+                <button onclick="gererExportRapportComplet()" class="btn-green" style="font-size:0.85rem; padding:10px; margin-top:4px;">🟢 GÉNÉRER ET COPIER LE RAPPORT DE CAISSE</button>
+                <textarea id="boxAffichageCode" class="hidden" rows="3" readonly style="margin-top:6px; font-family: monospace; font-size:0.75rem; word-break: break-all; background:white;"></textarea>
+            </div>
+            
+            <div id="boxValidationSalaire" class="hidden" style="background: #fdf4ff; padding: 10px; border-radius: 10px; margin-bottom: 8px; border: 1px solid #f3e8ff;">
+                <span style="font-weight:700; font-size:0.75rem; color:#6b21a8;">📋 SALAIRE DISPONIBLE</span>
+                <p id="infoSalaireGerant" style="margin:2px 0; font-size:0.75rem; color:#7e22ce; font-weight:600;"></p>
+                <button onclick="gerantConfirmerSalaire()" class="btn-purple" style="padding:6px; font-size:0.8rem;">Confirmer mon salaire</button>
+            </div>
+            
+            <div style="background: #f8fafc; padding: 10px; border-radius: 10px; margin-bottom: 8px; border: 1px solid #cbd5e1;">
+                <span style="font-weight:700; font-size:0.8rem; color:var(--primary);">📦 VENTE ARTICLES</span>
+                <select id="selectProduit" onchange="afficherPrixAchatGerant()"></select>
+                <div id="infoPrixAchat" style="font-size:0.75rem; color:#64748b; margin:4px 0; font-weight:600;">Prix d'achat : 0 FC | Prix de vente : 0 FC</div>
+                <input type="number" id="venteQte" value="1" min="1">
+                <button onclick="effectuerVente()" class="btn-blue" style="background: var(--primary);">Enregistrer la vente</button>
+            </div>
+            
+            <div style="background: #f0f9ff; padding: 10px; border-radius: 10px; margin-bottom: 8px; border: 1px solid #bae6fd;">
+                <span style="font-weight:700; font-size:0.8rem; color:#0369a1;">🛏️ LOGEMENT (CHAMBRE)</span>
+                <input type="text" id="logementNom" placeholder="Chambre 104...">
+                <input type="number" id="logementMontant" placeholder="Montant perçu en FC">
+                <button onclick="effectuerLogement()" class="btn-green">Enregistrer le logement</button>
+            </div>
+            
+            <div style="background: #fff7ed; padding: 10px; border-radius: 10px; margin-bottom: 8px; border: 1px solid #ffedd5;">
+                <span style="font-weight:700; font-size:0.8rem; color:#c2410c;">📝 CRÉDITS CLIENTS</span>
+                <input type="text" id="creditClient" placeholder="Nom du client...">
+                <input type="text" id="creditMotif" placeholder="Motif du crédit...">
+                <input type="number" id="creditMontant" placeholder="Montant en FC">
+                <button onclick="effectuerCredit()" class="btn-orange">Enregistrer le Crédit</button>
+                <div id="listeCreditsGerant" style="background:white; border:1px solid #ffedd5; border-radius:6px; padding:4px; max-height:85px; overflow-y:auto; font-size:0.75rem; margin-top:4px;"></div>
+            </div>
+            
+            <div style="background: #fef2f2; padding: 10px; border-radius: 10px; border: 1px solid #fecaca;">
+                <span style="font-weight:700; font-size:0.8rem; color:#991b1b;">📉 FICHE DES DÉPENSES</span>
+                <input type="text" id="depenseMotif" placeholder="Motif de la dépense...">
+                <input type="number" id="depenseMontant" placeholder="Montant payé en FC">
+                <button onclick="effectuerDepense()" class="btn-red">Valider la Dépense</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CAHIER DE NOTES INTERNES (IDENTIQUE À VOTRE PHOTO) -->
+    <div id="section-notes" class="card" style="border-left: 5px solid #0e7490;">
+        <h2 class="title" style="color: #0e7490;">💬 NOTES DE CORRESPONDANCE INTERNES</h2>
+        <div class="chat-box" id="boxNotes"></div>
+        <div style="display:flex; gap: 4px;">
+            <select id="noteAuteur" style="width: 30%; margin:0;"><option value="Irene">Irene</option><option value="Patron">Patron</option></select>
+            <input type="text" id="noteTexte" placeholder="Écrire un message..." style="width: 70%; margin:0;">
+        </div>
+        <button onclick="ajouterNote()" class="btn-blue" style="margin-top:4px; padding:10px;">Envoyer au cahier</button>
+    </div>
+
+    <!-- ESPACE PATRON -->
+    <div id="section-patron" class="card hidden" style="border-left: 5px solid var(--accent);">
+        <div class="title" style="color: var(--accent);">
+            <span>👑 DIRECTION ET FINANCES (PATRON)</span>
+            <button onclick="ouvrirPatron()" id="btnPatron" class="btn-admin">OUVRIR</button>
+        </div>
+        <div id="espacePatron" class="hidden">
+            
+            <!-- GRAND ESPACE COMPATIBLE POUR COLLER LES RAPPORT TEXTUELS -->
+            <div style="background: #e0f2fe; padding: 12px; border-radius: 10px; margin-bottom: 10px; border: 2px dashed #0369a1;">
+                <span style="font-weight:800; font-size:0.85rem; color:#0369a1; display:block; text-align:center;">📥 ACTUALISER MA COMPTABILITÉ PATRON</span>
+                <label style="margin:4px 0; color:var(--primary); font-weight:700;">Collez ici le grand texte de rapport généré par Irene :</label>
+                <textarea id="txtGrandRapportPatron" rows="4" placeholder="Collez l'intégralité du texte reçu sur WhatsApp ici..." style="background:white; font-size:0.8rem; margin-bottom:6px;"></textarea>
+                <button onclick="patronFusionnerGrandRapport()" class="btn-blue" style="margin:0; padding:10px; font-size:0.9rem;">🔄 FUSIONNER ET METTRE À JOUR MES COMPTES</button>
+            </div>
+
+            <div class="grid-stats">
+                <div class="stat-box" style="color: #0369a1;"><span>Recettes</span><div id="pRecettes">0</div></div>
+                <div class="stat-box" style="color: var(--success); background:#f0fdf4;"><span>Bénéfice</span><div id="pBenefices">0</div></div>
+                <div class="stat-box" style="color: var(--danger);"><span>Dépenses</span><div id="pDepenses">0</div></div>
+            </div>
+
+            <!-- ENCADRÉ DES VALEURS -->
+            <div style="background: #fffbeb; padding: 8px; border-radius: 10px; margin-bottom: 8px; border: 1px solid #fde68a; font-size:0.8rem;">
+                <div style="display:grid; grid-template-columns: 1fr 1fr; text-align:center; gap:4px; margin-bottom:4px;">
+                    <div><span style="color:#b45309; font-weight:600;">Stock Coût Achat</span><br><strong id="pStockAchat">0</strong> FC</div>
+                    <div><span style="color:#b45309; font-weight:600;">Stock Prix Vente</span><br><strong id="pStockVente">0</strong> FC</div>
+                </div>
+                <div style="border-top:1px solid #fde68a; padding-top:4px; display:grid; grid-template-columns: 1fr 1fr; text-align:center; gap:4px;">
+                    <div><span style="color:#0369a1; font-weight:600;">Total Logements</span><br><strong id="pTotalChambres">0</strong> FC</div>
+                    <div style="background:#bbf7d0; border-radius:6px; border:1px solid #86efac;"><span style="color:#14532d; font-weight:800;">NET (Recettes - Dépenses)</span><br><strong id="pTotalNetGlobal">0</strong> FC</div>
+                </div>
+            </div>
+
+            <!-- MODIFICATION HISTORIQUE -->
+            <div style="background: #f0f9ff; padding: 10px; border-radius: 10px; margin-bottom: 8px; border: 1px solid #bae6fd;">
+                <span style="font-weight:700; font-size:0.75rem; color:#0369a1;">🛠️ MODIFIER / SUPPRIMER DE L'HISTORIQUE</span>
+                <label>Sélectionner la ligne :</label>
+                <select id="pSelectFluxModif" onchange="chargerInfosFluxModif()"></select>
+                <input type="number" id="pEditFluxMontant" placeholder="Montant (FC)">
+                <div style="display:flex; gap:4px; margin-top:4px;">
+                    <button onclick="patronAppliquerModifFlux()" class="btn-blue" style="margin:0; padding:6px; font-size:0.8rem;">Modifier</button>
+                    <button onclick="patronSupprimerFlux()" class="btn-red" style="margin:0; padding:6px; font-size:0.8rem;">Supprimer</button>
+                </div>
+            </div>
+
+            <!-- PAIEMENT SALAIRE -->
+            <div style="background: #f3e8ff; padding: 10px; border-radius: 10px; margin-bottom: 8px; border: 1px solid #c084fc;">
+                <span style="font-weight:700; font-size:0.75rem; color:#6b21a8;">💰 VERSEMENT DU SALAIRE GÉRANT</span>
+                <input type="number" id="pMontantSalaire" placeholder="Montant (FC)">
+                <button onclick="patronPayerSalaire()" class="btn-purple" style="padding:6px; font-size:0.8rem;">Envoyer au gérant</button>
+            </div>
+
+            <!-- CREER UN PRODUIT -->
+            <div style="background: #f8fafc; padding: 10px; border-radius: 10px; margin-bottom: 8px; border: 1px solid #cbd5e1;">
+                <span style="font-weight:700; font-size:0.75rem; color:var(--accent);">➕ AJOUTER UN NOUVEL ARTICLE</span>
+                <input type="text" id="pNomProd" placeholder="Nom du produit...">
+                <input type="number" id="pPrixAchat" placeholder="Prix d'Achat (FC)">
+                <input type="number" id="pPrixVente" placeholder="Prix de Vente (FC)">
+                <input type="number" id="pStockQte" placeholder="Quantité initiale">
+                <button onclick="patronAjouterProduit()" class="btn-green" style="padding:8px;">Créer l'article</button>
+            </div>
+
+            <!-- APPLIQUER CHANGEMENT PRODUIT -->
+            <div style="background: #f0fdf4; padding: 10px; border-radius: 10px; margin-bottom: 8px; border: 1px solid #bbf7d0;">
+                <span style="font-weight:700; font-size:0.75rem; color:#166534;">✏️ CONFIGURER UN ARTICLE EXISTANT</span>
+                <select id="patronSelectModif" onchange="chargerInfosModif()"></select>
+                <input type="number" id="patronEditVente" placeholder="Nouveau Prix de Vente (FC)">
+                <input type="number" id="patronEditStock" placeholder="Nouvelle Quantité">
+                <button onclick="patronAppliquerModif()" class="btn-green" style="background:#16a34a; padding:6px; font-size:0.8rem;">Enregistrer</button>
+            </div>
+
+            <!-- HISTORIQUE COMPLET -->
+            <label>Historique complet des opérations :</label>
+            <div id="pAfficheHistorique" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:8px; max-height:160px; overflow-y:auto; font-size:0.8rem; margin-bottom:8px;"></div>
+
+            <!-- CODES DE SECURITE -->
+            <div style="background: #f8fafc; padding: 6px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                <input type="password" id="setPassG" placeholder="Nouveau code Gérant">
+                <input type="password" id="setPassP" placeholder="Nouveau code Patron">
+                <button onclick="changerCodes()" class="btn-orange" style="padding:4px; font-size:0.75rem;">Mettre à jour</button>
+                <button onclick="effacerTout()" class="btn-red" style="background:#be123c; margin-top:6px; padding:4px; font-size:0.75rem;">Remettre à Zéro</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLEAU DE STOCK -->
+    <div id="section-stock" class="card hidden" style="border-left: 5px solid var(--success);">
+        <h2 class="title" style="color: var(--success);">📋 Situation Générale des Stocks & Tarifs</h2>
+        <div style="overflow-x:auto;">
+            <table>
+                <thead>
+                    <tr><th>Désignation Article</th><th>Prix Vente</th><th>Total Vendu</th><th>Stock Restant</th><th>Action</th></tr>
+                </thead>
+                <tbody id="tableStockPublic"></tbody>
+            </table>
+        </div>
+    </div>
+    <!-- LOGIQUE LOGICIELLE DE CAISSE ET INTERFACE COMPTABLE : DEUXIÈME PARTIE -->
+    <script>
+        let produits = JSON.parse(localStorage.getItem('m_prod')) || [
+            {id:1, nom:"Chambre VIP", achat:15000, vente:30000, stock:10, vendu:0},
+            {id:2, nom:"Chambre Standard", achat:8000, vente:15000, stock:15, vendu:0},
+            {id:3, nom:"Bière Primus", achat:2500, vente:3500, stock:48, vendu:0},
+            {id:4, nom:"Sucré / Jus", achat:1200, vente:2000, stock:60, vendu:0}
+        ];
+        let flux = JSON.parse(localStorage.getItem('m_flux')) || [];
+        let notes = JSON.parse(localStorage.getItem('m_notes')) || [];
+        let salaireAttente = JSON.parse(localStorage.getItem('m_sal_attente')) || null;
+
+        if(!localStorage.getItem('pw_g')) localStorage.setItem('pw_g', '1234');
+        if(!localStorage.getItem('pw_p')) localStorage.setItem('pw_p', '0000');
+
+        document.getElementById('dateVente').valueAsDate = new Date();
+        actualiserDonneesEtAffichages();
+        majNotes();
+
+        // --- NAVIGATION INTERNE PAR ONGLETS (MENU BAR) ---
+        function basculerMenu(onglet) {
+            document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('mBtn-' + onglet).classList.add('active');
+            
+            document.getElementById('section-gerant').classList.add('hidden');
+            document.getElementById('section-patron').classList.add('hidden');
+            document.getElementById('section-stock').classList.add('hidden');
+            
+            if(onglet === 'gerant') document.getElementById('section-gerant').classList.remove('hidden');
+            if(onglet === 'patron') document.getElementById('section-patron').classList.remove('hidden');
+            if(onglet === 'stock') document.getElementById('section-stock').classList.remove('hidden');
+        }
+
+        // --- SYSTEME DE TRANSFERT DE TEXTE SÉCURISÉ POUR WHATSAPP ---
+        function gererExportRapportComplet() {
+            let area = document.getElementById('boxAffichageCode');
+            area.classList.remove('hidden');
+            
+            let paquet = { produits, flux, notes, salaireAttente };
+            let texteRapportLourd = btoa(unescape(encodeURIComponent(JSON.stringify(paquet))));
+            
+            area.value = texteRapportLourd;
+            area.select();
+            
+            navigator.clipboard.writeText(texteRapportLourd).then(() => {
+                alert("🟢 Rapport de caisse généré et copié ! Collez-le maintenant dans votre discussion WhatsApp pour l'envoyer.");
+            }).catch(() => {
+                alert("Texte affiché ! Veuillez tout sélectionner et copier manuellement pour l'envoyer par WhatsApp.");
+            });
+        }
+
+        function patronFusionnerGrandRapport() {
+            let txtArea = document.getElementById('txtGrandRapportPatron');
+            let contenu = txtArea.value.trim();
+            if(!contenu) return alert("Veuillez d'abord coller le texte de rapport reçu sur WhatsApp.");
+            
+            try {
+                let data = JSON.parse(decodeURIComponent(escape(atob(contenu))));
+                if(data) {
+                    if(data.produits) produits = data.produits;
+                    if(data.flux) flux = data.flux;
+                    if(data.notes) notes = data.notes;
+                    if(data.salaireAttente) salaireAttente = data.salaireAttente;
+                    
+                    localStorage.setItem('m_prod', JSON.stringify(produits));
+                    localStorage.setItem('m_flux', JSON.stringify(flux));
+                    localStorage.setItem('m_notes', JSON.stringify(notes));
+                    localStorage.setItem('m_sal_attente', JSON.stringify(salaireAttente));
+                    
+                    actualiserDonneesEtAffichages();
+                    majNotes();
+                    alert("✅ Base locale mise à jour ! La comptabilité de l'hôtel est synchronisée.");
+                    txtArea.value = "";
+                }
+            } catch(e) {
+                alert("Erreur de décodage. Le texte copié sur WhatsApp est incomplet.");
+            }
+        }
+
+        // --- DEVERROUILLAGE SÉCURISÉ DES SESSIONS ---
+        function ouvrirGerant() {
+            let d = document.getElementById('espaceGerant');
+            let btn = document.getElementById('btnGerant');
+            if(d.classList.contains('hidden')) {
+                if(prompt("Entrez le Code Gérant :") === localStorage.getItem('pw_g')) {
+                    d.classList.remove('hidden');
+                    btn.innerText = "FERMER SESSION";
+                    btn.style.background = "var(--danger)";
+                    majCreditsGerant();
+                    afficherPrixAchatGerant();
+                    verifierStatutSalaireGerant();
+                } else alert("Code erroné !");
+            } else { d.classList.add('hidden'); btn.innerText = "OUVRIR"; btn.style.background = "var(--primary)"; }
+        }
+
+        function ouvrirPatron() {
+            let d = document.getElementById('espacePatron');
+            let btn = document.getElementById('btnPatron');
+            if(d.classList.contains('hidden')) {
+                if(prompt("Entrez le Code Direction :") === localStorage.getItem('pw_p')) {
+                    d.classList.remove('hidden');
+                    btn.innerText = "FERMER DIRECTION";
+                    btn.style.background = "var(--danger)";
+                    chargerInfosModif();
+                    chargerInfosFluxModif();
+                } else alert("Code Direction erroné !");
+            } else { d.classList.add('hidden'); btn.innerText = "OUVRIR"; btn.style.background = "var(--primary)"; }
+        }
+
+        // --- MODULE SALAIRE ---
+        function verifierStatutSalaireGerant() {
+            let box = document.getElementById('boxValidationSalaire');
+            if(salaireAttente && salaireAttente.statut === 'en-attente') {
+                box.classList.remove('hidden');
+                document.getElementById('infoSalaireGerant').innerText = `Le Patron a versé un salaire de ${salaireAttente.montant.toLocaleString()} FC. Veuillez valider.`;
+            } else { box.classList.add('hidden'); }
+        }
+
+        function patronPayerSalaire() {
+            let mt = parseFloat(document.getElementById('pMontantSalaire').value);
+            if(isNaN(mt) || mt <= 0) return alert("Montant incorrect");
+            salaireAttente = { montant: mt, statut: 'en-attente' };
+            localStorage.setItem('m_sal_attente', JSON.stringify(salaireAttente));
+            document.getElementById('pMontantSalaire').value = '';
+            alert("Salaire enregistré. Cliquez sur le bouton vert d'exportation de rapport pour le transmettre à Irene.");
+            verifierStatutSalaireGerant();
+        }
+
+        function gerantConfirmerSalaire() {
+            if(!salaireAttente) return;
+            let date = document.getElementById('dateVente').value;
+            flux.push({
+                id: Date.now(), type:'depense', cat:'Salaire', desc: `Émargement : Salaire Gérant reçu par Irene`,
+                recu: salaireAttente.montant, achat: 0, date: date
+            });
+            salaireAttente = { statut: 'valide' };
+            localStorage.setItem('m_sal_attente', JSON.stringify(salaireAttente));
+            localStorage.setItem('m_flux', JSON.stringify(flux));
+            alert("Paiement émargé localement ! Pensez à réexporter le rapport pour notifier le Patron.");
+            verifierStatutSalaireGerant();
+            actualiserDonneesEtAffichages();
+        }
+
+        // --- CONFIGURATION CATALOGUE ARTICLES (PATRON) ---
+        function chargerInfosModif() {
+            let select = document.getElementById('patronSelectModif');
+            if(produits.length === 0) return;
+            let id = parseInt(select.value);
+            let p = produits.find(x => x.id === id);
+            if(p) {
+                document.getElementById('patronEditVente').value = p.vente;
+                document.getElementById('patronEditStock').value = p.stock;
+            }
+        }
+
+        function patronAppliquerModif() {
+            let id = parseInt(document.getElementById('patronSelectModif').value);
+            let nv = parseFloat(document.getElementById('patronEditVente').value);
+            let ns = parseInt(document.getElementById('patronEditStock').value);
+            let p = produits.find(x => x.id === id);
+            if(!p || isNaN(nv) || isNaN(ns)) return alert("Valeurs incorrectes");
+            p.vente = nv; p.stock = ns;
+            actualiserDonneesEtAffichages();
+            alert("Article réajusté avec succès !");
+        }
+
+        function patronSupprimerArticle(id) {
+            if(confirm("Supprimer définitivement cet article ?")) {
+                produits = produits.filter(x => x.id !== id);
+                actualiserDonneesEtAffichages();
+                alert("Article supprimé !");
+            }
+        }
+
+        // --- RECTIFICATION DES ENREGISTREMENTS DE CAISSE (PATRON) ---
+        function chargerInfosFluxModif() {
+            let select = document.getElementById('pSelectFluxModif');
+            select.innerHTML = '';
+            if(flux.length === 0) { select.innerHTML = '<option value="">Aucune opération</option>'; return; }
+            let fluxInverses = [...flux].reverse();
+            fluxInverses.forEach(f => {
+                select.innerHTML += `<option value="${f.id}">[${f.cat}] ${f.desc} - ${f.recu.toLocaleString()} FC</option>`;
+            });
+            let id = parseInt(select.value);
+            let o = flux.find(x => x.id === id);
+            if(o) document.getElementById('pEditFluxMontant').value = o.recu;
+        }
+
+        function patronAppliquerModifFlux() {
+            let id = parseInt(document.getElementById('pSelectFluxModif').value);
+            let nm = parseFloat(document.getElementById('pEditFluxMontant').value);
+            let o = flux.find(x => x.id === id);
+            if(!o || isNaN(nm) || nm <= 0) return alert("Montant invalide");
+            if(o.cat === 'Vente' && o.recu !== nm) { o.achat = (o.achat / o.recu) * nm; }
+            o.recu = nm;
+            localStorage.setItem('m_flux', JSON.stringify(flux));
+            actualiserDonneesEtAffichages();
+            chargerInfosFluxModif();
+            alert("Mouvement rectifié !");
+        }
+
+        function patronSupprimerFlux() {
+            let id = parseInt(document.getElementById('pSelectFluxModif').value);
+            if(!id) return;
+            if(confirm("Voulez-vous supprimer définitivement cette opération ?")) {
+                flux = flux.filter(x => x.id !== id);
+                localStorage.setItem('m_flux', JSON.stringify(flux));
+                actualiserDonneesEtAffichages();
+                chargerInfosFluxModif();
+                alert("Opération effacée de l'historique !");
+            }
+        }
+
+        // --- CALCULS COMPTABLES ET RE-AFFICHAGES ---
+        function actualiserDonneesEtAffichages() {
+            localStorage.setItem('m_prod', JSON.stringify(produits));
+            let sG = document.getElementById('selectProduit');
+            let sP = document.getElementById('patronSelectModif');
+            if(sG.options.length !== produits.length) {
+                sG.innerHTML = ''; sP.innerHTML = '';
+                produits.forEach(p => {
+                    sG.innerHTML += `<option value="${p.id}">${p.nom} (Reste: ${p.stock})</option>`;
+                    sP.innerHTML += `<option value="${p.id}">${p.nom}</option>`;
+                });
+            }
+
+            let tbody = document.getElementById('tableStockPublic'); tbody.innerHTML = '';
+            produits.forEach(p => {
+                let v = p.vendu || 0;
+                tbody.innerHTML += `<tr><td><b>${p.nom}</b></td><td>${p.vente.toLocaleString()} FC</td><td style="color:var(--primary); font-weight:700;">${v}</td><td style="font-weight:800; color:${p.stock <= 5 ? 'var(--danger)':'var(--success)'}">${p.stock}</td><td><button onclick="ouvrirPatronPourSuppr(${p.id})" style="background:var(--danger); padding:2px 8px; font-size:0.75rem; width:auto; margin:0;">Supprimer</button></td></tr>`;
+            });
+
+            let rec = 0, dep = 0, benef = 0, totalChambres = 0;
+            let hist = document.getElementById('pAfficheHistorique'); hist.innerHTML = '';
+            let fluxTries = [...flux].sort((a, b) => new Date(b.date) - new Date(a.date));
+            let dateEnCours = "";
+
+            fluxTries.forEach(f => {
+                if(f.type === 'recette') { rec += f.recu; benef += (f.recu - f.achat); if(f.cat === 'Chambre') totalChambres += f.recu; }
+                else if(f.type === 'depense') { dep += f.recu; benef -= f.recu; }
+
+                if(f.date !== dateEnCours) {
+                    dateEnCours = f.date;
+                    let dFormatee = new Date(dateEnCours).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+                    hist.innerHTML += `<div class="date-header">📅 ${dFormatee}</div>`;
+                }
+                let cl = f.type==='recette'?'bg-g':(f.type==='depense'?'bg-r':(f.cat==='Salaire'?'bg-p':'bg-o'));
+                let sg = f.type==='recette'?'+':(f.type==='depense'?'-':'⏳');
+                hist.innerHTML += `<div class="row-item" style="padding-left:6px;"><div><b>[${f.cat}]</b> ${f.desc}</div><span class="badge ${cl}">${sg} ${f.recu.toLocaleString()} FC</span></div>`;
+            });
+
+            document.getElementById('pRecettes').innerText = rec.toLocaleString() + " FC";
+            document.getElementById('pDepenses').innerText = dep.toLocaleString() + " FC";
+            document.getElementById('pBenefices').innerText = benef.toLocaleString() + " FC";
+            document.getElementById('pTotalChambres').innerText = totalChambres.toLocaleString() + " FC";
+
+            let vAchat = 0, vVente = 0;
+            produits.forEach(p => { vAchat += (p.achat * p.stock); vVente += (p.vente * p.stock); });
+            document.getElementById('pStockAchat').innerText = vAchat.toLocaleString();
+            document.getElementById('pStockVente').innerText = vVente.toLocaleString();
+            document.getElementById('pTotalNetGlobal').innerText = (rec - dep).toLocaleString() + " FC";
+        }
+
+        function ouvrirPatronPourSuppr(id) {
+            if(prompt("Code Sécurité Direction :") === localStorage.getItem('pw_p')) patronSupprimerArticle(id);
+            else alert("Action refusée !");
+        }
+
+        function afficherPrixAchatGerant() {
+            let id = parseInt(document.getElementById('selectProduit').value);
+            let p = produits.find(x => x.id === id);
+            if(p) document.getElementById('infoPrixAchat').innerText = `Prix d'achat : ${p.achat.toLocaleString()} FC | Prix de vente : ${p.vente.toLocaleString()} FC`;
+        }
+
+        // --- ENREGISTREMENTS ACTIONS GERANT ---
+        function effectuerVente() {
+            let id = parseInt(document.getElementById('selectProduit').value);
+            let qte = parseInt(document.getElementById('venteQte').value);
+            let date = document.getElementById('dateVente').value;
+            let p = produits.find(x => x.id === id);
+            if(!p || isNaN(qte) || qte <= 0 || p.stock < qte) return alert("Quantité incorrecte ou stock insuffisant !");
+            p.stock -= qte; p.vendu = (p.vendu || 0) + qte;
+            flux.push({ id: Date.now(), type:'recette', cat:'Vente', desc:`${p.nom} (x${qte})`, recu: p.vente * qte, achat: p.achat * qte, date: date });
+            localStorage.setItem('m_flux', JSON.stringify(flux));
+            actualiserDonneesEtAffichages(); afficherPrixAchatGerant(); alert("Vente enregistrée !");
+        }
+
+        function effectuerLogement() {
+            let nom = document.getElementById('logementNom').value.trim();
+            let mt = parseFloat(document.getElementById('logementMontant').value);
+            let date = document.getElementById('dateVente').value;
+            if(!nom || isNaN(mt) || mt <= 0) return alert("Saisie incorrecte");
+            flux.push({ id: Date.now(), type:'recette', cat:'Chambre', desc: `Logement: ${nom}`, recu: mt, achat: 0, date: date });
+            localStorage.setItem('m_flux', JSON.stringify(flux));
+            document.getElementById('logementNom').value = ''; document.getElementById('logementMontant').value = '';
+            actualiserDonneesEtAffichages(); alert("Chambre enregistrée !");
+        }
+
+        function effectuerCredit() {
+            let c = document.getElementById('creditClient').value.trim();
+            let m = document.getElementById('creditMotif').value.trim();
+            let mt = parseFloat(document.getElementById('creditMontant').value);
+            let date = document.getElementById('dateVente').value;
+            if(!c || !m || isNaN(mt) || mt <= 0) return alert("Champs invalides");
+            flux.push({ id: Date.now(), type:'credit', statut:'non-paye', cat:'Crédit', desc: `Client: ${c} (${m})`, recu: mt, achat: 0, date: date });
+            localStorage.setItem('m_flux', JSON.stringify(flux));
+            document.getElementById('creditClient').value = ''; document.getElementById('creditMotif').value = ''; document.getElementById('creditMontant').value = '';
+            majCreditsGerant(); actualiserDonneesEtAffichages(); alert("Crédit archivé !");
+        }
+
+        function majCreditsGerant() {
+            let box = document.getElementById('listeCreditsGerant'); box.innerHTML = '';
+            let cr = flux.filter(f => f.type === 'credit' && f.statut === 'non-paye');
+            if(cr.length === 0) { box.innerHTML = '<div style="color:#64748b; text-align:center;">Aucun crédit en cours</div>'; return; }
+            cr.forEach(c => {
+                box.innerHTML += `<div style="display:flex; justify-content:space-between; padding:2px 0; border-bottom:1px solid #f1f5f9;"><label style="margin:0;"><input type="checkbox" onchange="payerLeCredit(${c.id})"> ${c.desc}</label><b style="color:#c2410c;">${c.recu.toLocaleString()} FC</b></div>`;
+            });
+        }
+
+        function payerLeCredit(id) {
+            let idx = flux.findIndex(f => f.id === id);
+            if(idx !== -1) {
+                flux[idx].statut = 'paye'; flux[idx].type = 'recette'; flux[idx].desc += " (Encaissé)";
+                localStorage.setItem('m_flux', JSON.stringify(flux));
+                majCreditsGerant(); actualiserDonneesEtAffichages(); alert("Crédit versé en caisse !");
+            }
+        }
+
+        function effectuerDepense() {
+            let m = document.getElementById('depenseMotif').value.trim();
+            let mt = parseFloat(document.getElementById('depenseMontant').value);
+            let date = document.getElementById('dateVente').value;
+            if(!m || isNaN(mt) || mt <= 0) return alert("Saisie incorrecte");
+            flux.push({ id: Date.now(), type:'depense', cat:'Dépense', desc: m, recu: mt, achat: 0, date: date });
+            localStorage.setItem('m_flux', JSON.stringify(flux));
+            document.getElementById('depenseMotif').value = ''; document.getElementById('depenseMontant').value = '';
+            actualiserDonneesEtAffichages(); alert("Dépense enregistrée !");
+        }
+
+        function patronAjouterProduit() {
+            let nom = document.getElementById('pNomProd').value.trim();
+            let ac = parseFloat(document.getElementById('pPrixAchat').value);
+            let vt = parseFloat(document.getElementById('pPrixVente').value);
+            let st = parseInt(document.getElementById('pStockQte').value);
+            if(!nom || isNaN(ac) || isNaN(vt) || isNaN(st)) return alert("Veuillez remplir la fiche");
+            produits.push({ id: Date.now(), nom: nom, achat: ac, vente: vt, stock: st, vendu: 0 });
+            document.getElementById('pNomProd').value = ''; document.getElementById('pPrixAchat').value = ''; document.getElementById('pPrixVente').value = ''; document.getElementById('pStockQte').value = '';
+            actualiserDonneesEtAffichages(); chargerInfosModif(); alert("Nouvel article créé !");
+        }
+
+        // --- GESTION CODES DE SECURITE ACCÈS ---
+        function changerCodes() {
+            let g = document.getElementById('setPassG').value.trim();
+            let p = document.getElementById('setPassP').value.trim();
+            if(g) { localStorage.setItem('pw_g', g); alert("Code d'accès Gérant mis à jour !"); }
+            if(p) { localStorage.setItem('pw_p', p); alert("Code d'accès Direction mis à jour !"); }
+            document.getElementById('setPassG').value = ''; document.getElementById('setPassP').value = '';
+        }
+
+        function effacerTout() {
+            if(confirm("Confirmez-vous le nettoyage complet de l'application ?")) {
+                flux = []; produits.forEach(p => p.vendu = 0);
+                actualiserDonneesEtAffichages(); alert("Données remises à zéro !");
+            }
+        }
+
+        function ajouterNote() {
+            let aut = document.getElementById('noteAuteur').value;
+            let txt = document.getElementById('noteTexte').value.trim();
+            if(!txt) return;
+            notes.push({aut:aut, txt:txt});
+            localStorage.setItem('m_notes', JSON.stringify(notes));
+            document.getElementById('noteTexte').value = '';
+            majNotes();
+        }
+
+        function majNotes() {
+            let b = document.getElementById('boxNotes'); b.innerHTML = '';
+            notes.forEach(n => { b.innerHTML += `<div style="background:white; padding:4px; margin-bottom:4px; border-radius:4px; border:1px solid #e2e8f0;"><b>${n.aut}:</b> ${n.txt}</div>`; });
+            b.scrollTop = b.scrollHeight;
+        }
+    </script>
+</body>
+</html>
