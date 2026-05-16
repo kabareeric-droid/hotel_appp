@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👑 Système Royal - Gestion Hôtel</title>
+    <style>
+        /* 🎨 DESIGN LUXE ÉPURÉ - STYLE DE LA RDC */
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0f172a; margin: 0; padding: 12px; color: #f8fafc; }
+        .container { max-width: 500px; margin: auto; background: #1e293b; padding: 20px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); box-sizing: border-box; border: 1px solid #334155; }
+        
+        h1 { text-align: center; color: #f59e0b; font-size: 24px; text-transform: uppercase; letter-spacing: 1px; margin: 10px 0 20px 0; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        h2 { font-size: 15px; margin-top: 25px; color: #f59e0b; text-transform: uppercase; letter-spacing: 0.5px; border-left: 4px solid #f59e0b; padding-left: 10px; font-weight: 700; }
+        
+        .btn-zone { display: flex; gap: 10px; margin-bottom: 20px; }
+        .btn-tab { flex: 1; padding: 12px; border: 1px solid #334155; background: #1e293b; font-weight: bold; border-radius: 8px; cursor: pointer; color: #94a3b8; font-size: 13px; transition: all 0.3s ease; }
+        .btn-tab.active { background: #f59e0b; color: #0f172a; border-color: #f59e0b; box-shadow: 0 4px 12px rgba(245,158,11,0.2); }
+        
+        .page { display: none; }
+        .page.active { display: block; }
+        
+        .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+        .kpi-card { background: #0f172a; padding: 14px; border-radius: 10px; border: 1px solid #334155; text-align: center; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
+        .kpi-val { font-size: 16px; font-weight: 800; color: #38bdf8; margin-top: 6px; }
+        
+        .card { background: #0f172a; padding: 14px; border-radius: 10px; margin-bottom: 12px; border: 1px solid #334155; font-size: 14px; }
+        .card-flex { display: flex; justify-content: space-between; align-items: center; }
+        .badge { background: #334155; color: #cbd5e1; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; border: 1px solid #475569; }
+        
+        .btn { display: block; width: 100%; background: #10b981; color: #0f172a; border: none; padding: 14px; font-size: 15px; border-radius: 8px; cursor: pointer; font-weight: 800; margin-top: 12px; box-sizing: border-box; text-transform: uppercase; transition: all 0.2s ease; box-shadow: 0 4px 10px rgba(16,185,129,0.2); }
+        .btn:active { transform: scale(0.98); }
+        .btn.danger { background: #ef4444; color: #ffffff; box-shadow: 0 4px 10px rgba(239,68,68,0.2); }
+        .btn.sec { background: #38bdf8; color: #0f172a; box-shadow: 0 4px 10px rgba(56,189,248,0.2); }
+        .btn.whatsapp { background: #059669; color: white; box-shadow: 0 4px 10px rgba(5,150,105,0.2); }
+        
+        label { font-size: 13px; font-weight: 600; color: #94a3b8; display: block; margin-top: 12px; }
+        select, input, textarea { width: 100%; padding: 12px; margin: 6px 0 12px 0; border: 1px solid #334155; border-radius: 8px; box-sizing: border-box; font-size: 15px; background: #0f172a; color: #f8fafc; transition: border-color 0.3s; }
+        select:focus, input:focus, textarea:focus { border-color: #f59e0b; outline: none; }
+        
+        ul { list-style: none; padding: 0; margin: 0; }
+        li { background: #0f172a; padding: 12px; margin-bottom: 8px; border-radius: 8px; font-size: 13px; border-left: 4px solid #475569; border: 1px solid #334155; border-left-width: 4px; }
+        li.vente-item { border-left-color: #10b981; }
+        li.depense-item { border-left-color: #ef4444; }
+        li.credit-item { border-left-color: #f59e0b; }
+        .date-section { background: #334155; padding: 8px 12px; margin: 20px 0 8px 0; border-radius: 6px; font-weight: bold; color: #f59e0b; font-size: 13px; }
+        
+        /* 👑 DESIGN DE STOCK LUXE */
+        .stock-luxe-item { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: #f8fafc; border: 1px solid #d4af37; padding: 14px; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .stock-luxe-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 8px; margin-bottom: 8px; }
+        .stock-luxe-title { font-weight: 700; font-size: 15px; color: #f8fafc; }
+        .stock-luxe-badge { background: #d4af37; color: #0f172a; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 6px; letter-spacing: 0.5px; }
+        .stock-luxe-details { display: flex; justify-content: space-between; font-size: 13px; color: #94a3b8; }
+        .stock-luxe-price { color: #10b981; font-weight: 800; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <h1>👑 Système Royal - Hôtel</h1>
+        
+        <!-- ÉCRAN DE CONNEXION INITIAL -->
+        <div id="page-login" class="page active">
+            <h2>🔐 Zone Sécurisée Personnel</h2>
+            <label>Sélectionnez votre espace :</label>
+            <select id="login-role">
+                <option value="gerant">Espace Gérant / Boutique</option>
+                <option value="patron">Espace Patron / Contrôle</option>
+            </select>
+            <label>Code d'accès secret :</label>
+            <input type="password" id="login-password" placeholder="Entrez le mot de passe">
+            <button class="btn" onclick="tenterConnexion()">🔓 Ouvrir la session</button>
+        </div>
+
+        <!-- ZONE PRIVÉE POST-CONNEXION -->
+        <div id="zone-privee" style="display: none;">
+            <div class="btn-zone">
+                <button id="tab-gerant" class="btn-tab" onclick="switchTab('gerant')">🛒 ESPACE GÉRANT</button>
+                <button id="tab-patron" class="btn-tab" onclick="switchTab('patron')">📊 ESPACE PATRON</button>
+            </div>
+
+            <!-- ESPACE PATRON -->
+            <div id="page-patron" class="page">
+                <h2>📈 Tableau de Bord Financier</h2>
+                <div class="kpi-grid">
+                    <div class="kpi-card">💼 Valeur Stock<div class="kpi-val" id="kpi-valeur-stock">0 CDF</div></div>
+                    <div class="kpi-card">💰 Ventes Brutes<div class="kpi-val" id="kpi-ventes">0 CDF</div></div>
+                    <div class="kpi-card">📉 Total Dépenses<div class="kpi-val" id="kpi-depenses" style="color:#ef4444;">0 CDF</div></div>
+                    <div class="kpi-card">💎 Bénéfice Net<div class="kpi-val" id="kpi-benefice" style="color:#10b981;">0 CDF</div></div>
+                </div>
+
+                <!-- BOUTON DE RÉCEPTION DES CODES DU GÉRANT -->
+                <div class="card" style="background: #064e3b; border: 1px solid #047857;">
+                    <label style="color:#a7f3d0;">📥 Synchronisation Patron (Coller le code du Gérant) :</label>
+                    <textarea id="patron-import-code" rows="3" placeholder="Collez ici le texte chiffré reçu du Gérant par WhatsApp"></textarea>
+                    <button class="btn" onclick="importerDonneesGerant()">🔄 Actualiser tout mon Tableau de Bord</button>
+                </div>
+
+                <h2>📦 Ajouter / Modifier des Articles</h2>
+                <form id="form-produit" onsubmit="gererProduit(event)">
+                    <label>Nom de l'article ou de la Chambre :</label>
+                    <input type="text" id="prod-nom" required placeholder="Ex: Boisson Royale">
+                    <div style="display: flex; gap: 8px;">
+                        <div style="flex: 1;"><label>Stock :</label><input type="number" id="prod-qte" required min="0"></div>
+                        <div style="flex: 1;"><label>Achat (CDF) :</label><input type="number" id="prod-achat" required min="0"></div>
+                        <div style="flex: 1;"><label>Vente (CDF) :</label><input type="number" id="prod-vente" required min="0"></div>
+                    </div>
+                    <button type="submit" class="btn sec">💾 Enregistrer l'article</button>
+                </form>
+
+                <h2>🔐 Configuration des Mots de Passe</h2>
+                <div class="card">
+                    <label>Modifier le mot de passe de :</label>
+                    <select id="pass-role">
+                        <option value="patron">Espace Patron</option>
+                        <option value="gerant">Espace Gérant</option>
+                    </select>
+                    <label>Nouveau Code Secret :</label>
+                    <input type="password" id="pass-nouveau" placeholder="Minimum 4 caractères">
+                    <button class="btn sec" onclick="changerCleSecrete()">🔄 Enregistrer le Nouveau Code</button>
+                </div>
+                
+                <h2>📅 Calendrier Historique des Opérations</h2>
+                <div id="patron-logs-calendrier"></div>
+            </div>
+
+            <!-- ESPACE GÉRANT -->
+            <div id="page-gerant" class="page">
+                <div class="card" style="background:#1e1b4b; border:1px solid #4338ca;">
+                    <label style="color:#c7d2fe;">📅 Date de l'opération en cours :</label>
+                    <input type="date" id="operation-date" required>
+                </div>
+
+                <!-- BOUTON ENVOI RAPIDE DU GÉRANT -->
+                <div class="card" style="background: #1e3a8a; border: 1px solid #1d4ed8;">
+                    <label style="color:#bfdbfe;">📤 Transmission des données de caisse :</label>
+                    <button class="btn whatsapp" onclick="genererCodeWhatsApp()">📱 Envoyer mon rapport au Patron (WhatsApp)</button>
+                </div>
+
+                <h2>🛒 Enregistrer une Vente / Location</h2>
+                <form id="form-vente" onsubmit="faireVente(event)">
+                    <label>Sélectionner la prestation :</label>
+                    <select id="vente-article" required></select>
+                    <label>Quantité ou Nombre de nuitées :</label>
+                    <input type="number" id="vente-qte" value="1" min="1" required>
+                    <button type="submit" class="btn">🚀 Enregistrer l'opération</button>
+                </form>
+
+                <h2>📉 Déclarer une Dépense Caisse</h2>
+                <form id="form-depense" onsubmit="faireDepense(event)">
+                    <label>Motif de la dépense :</label>
+                    <input type="text" id="dep-motif" placeholder="Ex: Transport, Charbon..." required>
+                    <label>Montant (CDF) :</label>
+                    <input type="number" id="dep-montant" required>
+                    <button type="submit" class="btn danger">💸 Sortie de fonds</button>
+                </form>
+
+                <h2>🧮 Gestion des Crédits & Dettes</h2>
+                <form id="form-credit" onsubmit="faireCredit(event)">
+                    <label>Nom du débiteur :</label>
+                    <input type="text" id="cred-nom" placeholder="Ex: Mr Kasongo" required>
+                    <label>Motif de la dette :</label>
+                    <input type="text" id="cred-motif" placeholder="Ex: Reste Chambre 102" required>
+                    <label>Montant de la dette (CDF) :</label>
+                    <input type="number" id="cred-montant" required>
+                    <button type="submit" class="btn" style="background:#f59e0b;">⚠️ Enregistrer la dette</button>
+                </form>
+
+                <h2>🛏️ État d'Entretien des Chambres</h2>
+                <div id="box-chambres"></div>
+
+                <h2>💰 Rémunération du Personnel</h2>
+                <div class="card">
+                    <p style="margin:0 0 10px 0; font-weight:bold;">Émargement du salaire :</p>
+                    <button class="btn sec" onclick="signerSalaire()">📝 Confirmer la réception de mon Salaire</button>
+                    <ul id="liste-salaires" style="margin-top:10px;"></ul>
+                </div>
+            </div>
+            
+            <button class="btn danger" onclick="deconnexion()" style="margin-top:20px;">🔒 Fermer la session</button>
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid #334155; margin: 25px 0;">
+
+        <!-- 📋 ETAPE 2 : LE BLOC DE STOCKS REPOSITIONNÉ TOUT EN BAS DE L'APP -->
+        <h2>📋 Situation Actuelle des Stocks Live</h2>
+        <div id="zone-stocks-publique" style="margin-bottom: 25px;"></div>
+
+    </div>
+
+    <script>
+        function charger(cle, defaut) {
+            let res = localStorage.getItem(cle);
+            return res ? JSON.parse(res) : defaut;
+        }
+        function sauver(cle, obj) { localStorage.setItem(cle, JSON.stringify(obj)); }
+
+        let currentStock = charger('r_stock', {
+            "Chambre Standard": { quantite: 15, prix_achat: 12000, prix_vente: 30000 },
+            "Chambre VIP": { quantite: 5, prix_achat: 25000, prix_vente: 75000 },
+            "Boisson Royale": { quantite: 100, prix_achat: 2000, prix_vente: 4000 }
+        });
+
+        let currentChambres = charger('r_chambres', {
+            "101": { statut: "Libre", type: "Standard" }, "102": { statut: "Libre", type: "Standard" }, "201": { statut: "Libre", type: "VIP" }
+        });
+
+        let accessPasswords = charger('r_codes', { patron: "patron123", gerant: "gerant123" });
+        let listeVentes = charger('r_ventes', []);
+        let listeDepenses = charger('r_depenses', []);
+        let listeCredits = charger('r_credits', []);
+        let listeSalaires = charger('r_salaires', []);
+
+        function initCalendrierVente() {
+            const ajd = new Date();
+            const yyyy = ajd.getFullYear();
+            let mm = ajd.getMonth() + 1, dd = ajd.getDate();
+            if (dd < 10) dd = '0' + dd; if (mm < 10) mm = '0' + mm;
+            document.getElementById('operation-date').value = yyyy + '-' + mm + '-' + dd;
+        }
+
+        function tenterConnexion() {
+            const role = document.getElementById('login-role').value;
+            const pass = document.getElementById('login-password').value;
+            if (pass === accessPasswords[role]) {
+                document.getElementById('page-login').style.display = 'none';
+                document.getElementById('zone-privee').style.display = 'block';
+                document.getElementById('tab-patron').style.display = (role === 'patron') ? 'block' : 'none';
+                switchTab(role);
+                initCalendrierVente();
+                rafraichirEcranVisuel();
+            } else { alert("❌ Code secret incorrect !"); }
+        }
+
+        function deconnexion() { document.getElementById('zone-privee').style.display = 'none'; document.getElementById('page-login').style.display = 'block'; document.getElementById('login-password').value = ''; }
+        
+        function switchTab(role) {
+            document.querySelectorAll('.btn-tab').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            if (role === 'patron') {
+                document.getElementById('tab-patron').classList.add('active'); document.getElementById('page-patron').classList.add('active');
+            } else {
+                document.getElementById('tab-gerant').classList.add('active'); document.getElementById('page-gerant').classList.add('active');
+            }
+        }
+
+        function rafraichirEcranVisuel() {
+            let totalAchatStock = 0, totalVentes = 0, totalDepenses = 0;
+
+            const selectVente = document.getElementById('vente-article');
+            let currentSelection = selectVente.value;
+            selectVente.innerHTML = Object.entries(currentStock).map(([name, s]) => `<option value="${name}">${name} (${parseInt(s.quantite)} dispo)</option>`).join('');
+            if(currentSelection && currentStock[currentSelection]) selectVente.value = currentSelection;
+
+            // 👑 RENDER DU DESIGN DE STOCK ROYAL ACCESSIBLE TOUT EN BAS DE LA PAGE
+            const zonePublique = document.getElementById('zone-stocks-publique');
+            zonePublique.innerHTML = Object.entries(currentStock).map(([name, s]) => {
+                let qte = parseInt(s.quantite || 0);
+                let ach = parseFloat(s.prix_achat || 0);
+                let ven = parseFloat(s.prix_vente || 0);
+                totalAchatStock += (qte * ach);
+                return `
+                    <div class="stock-luxe-item">
+                        <div class="stock-luxe-header">
+                            <span class="stock-luxe-title">👑 ${name}</span>
+                            <span class="stock-luxe-badge">${qte} EN STOCK</span>
+                        </div>
+                        <div class="stock-luxe-details">
+                            <span>Prix unitaire de vente : <span class="stock-luxe-price">${ven.toLocaleString()} CDF</span></span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            listeVentes.forEach(v => { totalVentes += parseFloat(v.total || 0); });
+            listeDepenses.forEach(d => { totalDepenses += parseFloat(d.montant || 0); });
+
+            document.getElementById('kpi-valeur-stock').innerText = totalAchatStock.toLocaleString('fr-FR') + " CDF";
+            document.getElementById('kpi-ventes').innerText = totalVentes.toLocaleString('fr-FR') + " CDF";
+            document.getElementById('kpi-depenses').innerText = totalDepenses.toLocaleString('fr-FR') + " CDF";
+            document.getElementById('kpi-benefice').innerText = (totalVentes - totalDepenses).toLocaleString('fr-FR') + " CDF";
+
+            let operationsParDate = {};
+            listeVentes.forEach(v => { if(!operationsParDate[v.date_complete]) operationsParDate[v.date_complete] = []; operationsParDate[v.date_complete].push(`<li class="vente-item">🟢 <b>Vente</b> : ${v.quantite}x ${v.article} (${parseFloat(v.total).toLocaleString()} CDF) <span class="badge" style="float:right;">${v.heure}</span></li>`); });
+            listeDepenses.forEach(d => { if(!operationsParDate[d.date_complete]) operationsParDate[d.date_complete] = []; operationsParDate[d.date_complete].push(`<li class="depense-item">🔴 <b>Dépense</b> : ${d.motif} (-${parseFloat(d.montant).toLocaleString()} CDF) <span class="badge" style="float:right;">${d.heure}</span></li>`); });
+            listeCredits.forEach((c, index) => { if(!operationsParDate[c.date_complete]) operationsParDate[c.date_complete] = []; let btnAction = c.statut === 'En attente' ? `<button style="background:#fee2e2;color:#ef4444;border:none;padding:2px 6px;border-radius:4px;cursor:pointer;" onclick="rembourser(${index})">Rembourser</button>` : `<span style="color:#10b981;font-weight:bold;">Remboursé</span>`; operationsParDate[c.date_complete].push(`<li class="credit-item">🟡 <b>Crédit</b> : ${c.nom_client} (${c.motif}) - ${parseFloat(c.montant).toLocaleString()} CDF - ${btnAction} <span class="badge" style="float:right;">${c.heure}</span></li>`); });
+
+            const calendrierBox = document.getElementById('patron-logs-calendrier');
+            let calendrierHtml = '';
+            let datesTriees = Object.keys(operationsParDate).sort().reverse();
+            datesTriees.forEach(date => {
+                let options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                let dateFormatee = new Date(date).toLocaleDateString('fr-FR', options);
+                calendrierHtml += `<div class="date-section">📅 ${dateFormatee}</div><ul>${operationsParDate[date].join('')}</ul>`;
+            });
+            calendrierBox.innerHTML = calendrierHtml || '<p style="color:#94a3b8; text-align:center;">Aucune transaction enregistrée.</p>';
+
+            document.getElementById('box-chambres').innerHTML = Object.entries(currentChambres).map(([num, ch]) => `
+                <div class="card card-flex">
+                    <span>Chambre <b>${num}</b> (${ch.type})</span>
+                    <select style="width:auto;margin:0;padding:5px;" onchange="changerStatutChambre('${num}', this.value)">
+                        <option value="Libre" ${ch.statut==='Libre'?'selected':''}>🟢 Libre</option>
+                        <option value="Occupée" ${ch.statut==='Occupée'?'selected':''}>🔴 Occupée</option>
+                        <option value="Entretien" ${ch.statut==='Entretien'?'selected':''}>🟠 Entretien</option>
+                    </select>
+                </div>
+            `).join('');
+            document.getElementById('liste-salaires').innerHTML = listeSalaires.map(s => `<li>✅ Salaire reçu pour : <b>${s.mois_annee}</b> <span class="badge" style="float:right;">le ${s.date_complete}</span></li>`).join('');
+        }
+
+        function faireVente(e) {
+            e.preventDefault();
+            const art = document.getElementById('vente-article').value;
+            const qte = parseInt(document.getElementById('vente-qte').value);
+            const dateChoisie = document.getElementById('operation-date').value;
+            if (currentStock[art] && parseInt(currentStock[art].quantite) >= qte) {
+                listeVentes.push({ article: art, quantite: qte, total: qte * parseFloat(currentStock[art].prix_vente), date_complete: dateChoisie, heure: new Date().toLocaleTimeString('fr-FR') });
+                currentStock[art].quantite -= qte;
+                sauver('r_stock', currentStock); sauver('r_ventes', listeVentes); rafraichirEcranVisuel();
+            } else { alert("⚠️ Stock insuffisant !"); }
+            document.getElementById('vente-qte').value = 1;
+        }
+
+        function faireDepense(e) { e.preventDefault(); listeDepenses.push({ motif: document.getElementById('dep-motif').value, montant: parseFloat(document.getElementById('dep-montant').value || 0), date_complete: document.getElementById('operation-date').value, heure: new Date().toLocaleTimeString('fr-FR') }); sauver('r_depenses', listeDepenses); rafraichirEcranVisuel(); document.getElementById('form-depense').reset(); }
+        function faireCredit(e) { e.preventDefault(); listeCredits.push({ nom_client: document.getElementById('cred-nom').value, motif: document.getElementById('cred-motif').value, montant: parseFloat(document.getElementById('cred-montant').value || 0), statut: 'En attente', date_complete: document.getElementById('operation-date').value, heure: new Date().toLocaleTimeString('fr-FR') }); sauver('r_credits', listeCredits); rafraichirEcranVisuel(); document.getElementById('form-credit').reset(); }
+        function rembourser(idx) { listeCredits[idx].statut = 'Remboursé'; sauver('r_credits', listeCredits); rafraichirEcranVisuel(); }
+        function changerStatutChambre(num, stat) { currentChambres[num].statut = stat; sauver('r_chambres', currentChambres); rafraichirEcranVisuel(); }
+        function signerSalaire() { const m = prompt("Mois et Année :"); if(m) { listeSalaires.push({ mois_annee: m, date_complete: document.getElementById('operation-date').value }); sauver('r_salaires', listeSalaires); rafraichirEcranVisuel(); } }
+        
+        function gererProduit(e) { 
+            e.preventDefault(); 
+            const n = document.getElementById('prod-nom').value; 
+            currentStock[n] = { quantite: parseInt(document.getElementById('prod-qte').value), prix_achat: parseFloat(document.getElementById('prod-achat').value), prix_vente: parseFloat(document.getElementById('prod-vente').value) }; 
+            sauver('r_stock', currentStock); 
+            rafraichirEcranVisuel(); 
+            document.getElementById('form-produit').reset(); 
+        }
+        
+        function changerCleSecrete() { const r = document.getElementById('pass-role').value; const n = document.getElementById('pass-nouveau').value; if(n.length < 4) { alert("⚠️ 4 caractères minimum."); return; } accessPasswords[r] = n; sauver('r_codes', accessPasswords); alert("Code mis à jour !"); document.getElementById('pass-nouveau').value = ''; }
+
+        function genererCodeWhatsApp() {
+            let paquet = { stock: currentStock, ventes: listeVentes, depenses: listeDepenses, credits: listeCredits, salaires: listeSalaires };
+            let codeChiffre = btoa(unescape(encodeURIComponent(JSON.stringify(paquet))));
+            let messageWhatsApp = `👑 *RAPPORT HOTEL ROYAL*\nVoici le code de caisse à coller sur votre application :\n\n${codeChiffre}`;
+            window.open(`https://whatsapp.com{encodeURIComponent(messageWhatsApp)}`, '_blank');
+        }
+
+        function importerDonneesGerant() {
+            let zoneTexte = document.getElementById('patron-import-code').value.trim();
+            if(!zoneTexte) { alert("Veuillez d'abord coller le code reçu !"); return; }
+            try {
+                let donneesDecouvertes = JSON.parse(decodeURIComponent(escape(atob(zoneTexte))));
+                currentStock = donneesDecouvertes.stock;
+                listeVentes = donneesDecouvertes.ventes;
+                listeDepenses = donneesDecouvertes.depenses;
+                listeCredits = donneesDecouvertes.credits;
+                listeSalaires = donneesDecouvertes.salaires;
+
+                sauver('r_stock', currentStock); sauver('r_ventes', listeVentes);
+                sauver('r_depenses', listeDepenses); sauver('r_credits', listeCredits);
+                sauver('r_salaires', listeSalaires);
+
+                rafraichirEcranVisuel();
+                document.getElementById('patron-import-code').value = '';
+                alert("👑 Données synchronisées avec succès !");
+            } catch(err) { alert("❌ Code invalide ou corrompu."); }
+        }
+
+        window.onload = function() { rafraichirEcranVisuel(); };
+    </script>
+</body>
+</html>
