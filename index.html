@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👑 Système Royal - Gestion Hôtel Luxe</title>
+    <style>
+        /* --- CHARTE GRAPHIQUE PROFESSIONNELLE POUR TÉLÉPHONE --- */
+        :root {
+            --bg-app: #f1f5f9;
+            --txt-dark: #0f172a;
+            --color-gerant: #2563eb; 
+            --color-patron: #1e1b4b; 
+            --accent-gold: #d97706;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+        body { font-family: sans-serif; margin: 0; padding: 10px; background: var(--bg-app); color: var(--txt-dark); }
+        h1 { font-size: 19px; text-align: center; color: var(--accent-gold); margin: 5px 0 10px 0; font-weight: bold; text-transform: uppercase; }
+        h2 { font-size: 14px; margin-top: 15px; margin-bottom: 5px; text-transform: uppercase; border-bottom: 2px solid #cbd5e1; padding-bottom: 2px; }
+        label { display: block; margin-top: 6px; font-weight: bold; font-size: 12px; color: #475569; }
+        input, select { width: 100%; padding: 10px; margin-bottom: 5px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; font-size: 14px; background: #fff; color: #000; }
+        .btn { width: 100%; padding: 11px; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 13px; cursor: pointer; margin-top: 4px; text-transform: uppercase; }
+        .grid-spaces { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px; }
+        
+        /* Style Espace Gérant */
+        .espace-gerant-style { display: none; border: 2px solid var(--color-gerant); padding: 12px; border-radius: 8px; background: #ffffff; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .espace-gerant-style h2 { color: var(--color-gerant); }
+        
+        /* Style Espace Patron */
+        .espace-patron-style { display: none; border: 2px solid var(--color-patron); padding: 12px; border-radius: 8px; background: #1e293b; color: #f8fafc; box-shadow: 0 10px 15px rgba(0,0,0,0.1); }
+        .espace-patron-style h2 { color: #f59e0b; border-bottom-color: #475569; }
+        .espace-patron-style input, .espace-patron-style select { background: #334155; color: #fff; border-color: #475569; }
+        .espace-patron-style label { color: #cbd5e1; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 13px; background: #fff; color: var(--txt-dark); }
+        th, td { border: 1px solid #cbd5e1; padding: 8px; text-align: left; }
+        th { background: #e2e8f0; color: var(--txt-dark); }
+        .badge { display: inline-block; padding: 3px 6px; font-size: 11px; color: white; border-radius: 4px; font-weight: bold; min-width: 80px; text-align: center; }
+        .card-notif { background: #f8fafc; border-left: 4px solid var(--accent-gold); padding: 8px; border-radius: 4px; margin-bottom: 10px; font-size: 12px; color: var(--txt-dark); }
+        .alert-stock { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 5px; border-radius: 4px; font-size: 11px; margin-bottom: 4px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <h1>👑 SYSTEME ROYAL - HOTEL</h1>
+    
+    <!-- 🔐 ZONE SÉCURISÉE ACCÈS PERSONNEL -->
+    <h2>🔐 Identification Obligatoire Personnel</h2>
+    <div class="grid-spaces">
+        <button class="btn" onclick="ouvrirFenetreAuth('gerant')" style="background:var(--color-gerant);">🛒 ACCÈS GÉRANT</button>
+        <button class="btn" onclick="ouvrirFenetreAuth('patron')" style="background:var(--accent-gold);">📊 ACCÈS PATRON</button>
+    </div>
+
+    <div id="zone-auth" style="display:none; margin-top: 5px; background: #e2e8f0; padding: 12px; border-radius: 8px;">
+        <label>Entrez le mot de passe secret pour l'Espace <span id="nom-espace-auth" style="text-transform: uppercase; font-weight: bold;"></span> :</label>
+        <input type="password" id="code-acces" placeholder="Code secret...">
+        <button class="btn" onclick="authentifier()" style="background:#475569;">🔓 Ouvrir la Session</button>
+    </div>
+
+    <p style="margin:8px 0; font-size:12px; color:#64748b; text-align: center;">📅 Calendrier : <strong id="date-live">--/--/----</strong></p>
+
+    <!-- ======================================================= -->
+    <!-- 🛒 ESPACE GÉRANT                                        -->
+    <!-- ======================================================= -->
+    <div id="espace-gerant" class="espace-gerant-style">
+        <p style="margin:0 0 10px 0; font-size:13px; color:var(--color-gerant); font-weight: bold;">👤 Session active : <span id="label-nom-gerant-live">Gérant</span></p>
+        
+        <div class="card-notif">
+            <strong>📢 Messagerie Interne / Note de Salaire :</strong>
+            <div id="msg-salaire-gerant" style="font-size:12px; margin:3px 0; color:#9a3412;">Aucun message en attente.</div>
+            <button id="btn-confirmer-salaire" onclick="gerantConfirmeSalaire()" class="btn" style="background:var(--success); padding:5px; font-size:11px;">✅ Confirmer la Réception de mon Salaire</button>
+        </div>
+
+        <button onclick="genererCodeSync()" class="btn" style="background:var(--accent-gold); margin-bottom: 12px;">🔑 Générer le Code Chiffré pour le Patron</button>
+
+        <!-- Formulaire Vente Gérant -->
+        <h2>🛒 Enregistrer une Vente ou Location</h2>
+        <form onsubmit="ajouterVente(event)">
+            <label>Sélectionner la prestation :</label>
+            <select id="vente-article" required></select>
+            <label>Quantité ou Nombre de nuitées :</label>
+            <input type="number" id="vente-qte" value="1" min="1" required>
+            <button type="submit" class="btn" style="background:var(--color-gerant);">🚀 Confirmer et Enregistrer l'opération</button>
+        </form>
+
+        <!-- Formulaire Dépense Gérant -->
+        <h2>📉 Déclarer une Dépense Caisse</h2>
+        <form onsubmit="ajouterDepense(event)">
+            <label>Motif de la dépense :</label>
+            <input type="text" id="dep-motif" placeholder="Ex: Achat braises ou Ampoules" required>
+            <label>Montant Sortie (CDF) :</label>
+            <input type="number" id="dep-montant" placeholder="Montant en Francs CDF" required>
+            <button type="submit" class="btn" style="background:var(--danger);">💸 Sortie de fonds</button>
+        </form>
+
+        <!-- Formulaire Dettes Gérant -->
+        <h2>🧮 Enregistrer un Crédit / Dette Client</h2>
+        <form onsubmit="ajouterDette(event)">
+            <label>Nom complet du débiteur :</label>
+            <input type="text" id="cred-nom" required>
+            <label>Contact Téléphone :</label>
+            <input type="text" id="cred-tel" required>
+            <label>Motif de la dette :</label>
+            <input type="text" id="cred-motif" required>
+            <label>Montant de la dette (CDF) :</label>
+            <input type="number" id="cred-montant" required>
+            <label>Date limite règlement :</label>
+            <input type="date" id="cred-sortie" required>
+            <button type="submit" class="btn" style="background:var(--accent-gold);">⚠️ Sauvegarder la dette</button>
+        </form>
+
+        <h2>📋 Dettes Clients (Cliquer pour encaisser le paiement)</h2>
+        <table>
+            <thead><tr><th>Client</th><th>Motif</th><th>Montant (CDF)</th><th>Action Gérant</th></tr></thead>
+            <tbody id="tbody-dettes-gerant"></tbody>
+        </table>
+
+        <h2>🛏️ État d'Occupation en Direct des Chambres</h2>
+        <div id="box-chambres-gerant" style="display: flex; flex-wrap: wrap; gap: 5px;"></div>
+
+        <button onclick="fermerSession()" class="btn" style="background:#475569; margin-top:15px;">🔒 Clôturer et Fermer l'Espace Gérant</button>
+    </div>
+    <!-- ======================================================= -->
+    <!-- 📊 ESPACE PATRON (Design Direction : Sombre & Or Luxe)  -->
+    <!-- ======================================================= -->
+    <div id="espace-patron" class="espace-patron-style">
+        <p style="margin:0 0 10px 0; font-size:13px; color:#f59e0b; font-weight: bold;">👑 Session active : <span id="label-nom-patron-live">Patron</span></p>
+
+        <div class="card-notif" style="border-left-color: #f59e0b; background: #334155; color: #fff;">
+            <strong>💵 Comptabilité : Salaire Gérant</strong>
+            <div id="status-salaire-patron" style="font-size:12px; margin:4px 0;">Vérification...</div>
+            <button id="btn-payer-salaire" onclick="patronPayeSalaire()" class="btn" style="background:var(--accent-gold); padding: 5px; font-size: 11px;">💰 Verser le Salaire du Gérant</button>
+        </div>
+
+        <h2>📥 Importer le Rapport du Gérant (Collage de Code)</h2>
+        <input type="text" id="code-sync-patron" placeholder="Coller ici le code texte envoyé par le gérant...">
+        <button onclick="validerCodeSync()" class="btn" style="background:var(--success);">🔄 Décoder et Calculer Tout le Rapport</button>
+
+        <!-- Tableau de Bord Financier Secret Patron -->
+        <h2>📈 Rapport Financier Global (Calculé après collage)</h2>
+        <div style="font-size: 13px; line-height: 1.6; background:#1e293b; padding: 10px; border: 1px solid #475569; border-radius: 6px; color: #f8fafc;">
+            <div>💼 <strong>Investissement Total Stock Actuel :</strong> <span id="dash-stock" style="font-weight: bold; color: #f59e0b;">0</span> CDF</div>
+            <div style="color: #10b981; font-weight: 600;">💰 Recettes Totales Importées (Ventes) : <span id="dash-ventes">0</span> CDF</div>
+            <div style="color: #f87171; font-weight: 600;">📉 Cumul Total des Dépenses de Caisse : <span id="dash-depenses">0</span> CDF</div>
+            <div style="color: #fb923c; font-weight: 600;">⚠️ Cumul des Dettes Clients en Attente : <span id="dash-dettes">0</span> CDF</div>
+            <div style="border-top: 2px solid #475569; margin: 5px 0; padding-top: 5px; font-size: 14px; font-weight: bold; color: #f59e0b;">
+                💎 BÉNÉFICES RÉELS NETS COMPTABILISÉS : <span id="dash-benefice">0</span> CDF
+            </div>
+        </div>
+
+        <!-- Paramétrage et modification des articles -->
+        <h2>📦 Catalogue Général d'Usine des Articles (Patron)</h2>
+        <form onsubmit="ajusterStock(event)">
+            <label>Nom de l'article :</label>
+            <input type="text" id="stk-nom" placeholder="Ex: Bière Simba" required>
+            <div class="grid-buttons">
+                <div><label>Quantité :</label><input type="number" id="stk-qte" required></div>
+                <div><label>Seuil Alerte :</label><input type="number" id="stk-seuil" value="5" required></div>
+            </div>
+            <div class="grid-buttons">
+                <div><label>Prix Achat (CDF) :</label><input type="number" id="stk-achat" required></div>
+                <div><label>Prix Vente (CDF) :</label><input type="number" id="stk-vente" required></div>
+            </div>
+            <div class="grid-buttons">
+                <button type="submit" class="btn" style="background:var(--success);">💾 Configurer l'article</button>
+                <button type="button" onclick="supprimerArticleDuStock()" class="btn" style="background:var(--danger);">❌ Supprimer l'article</button>
+            </div>
+        </form>
+
+        <h2>📅 Classement Chronologique des Recettes & Historiques</h2>
+        <label>Sélectionner le mode de filtrage :</label>
+        <select id="filtre-historique-mode" onchange="rafraichirToutesLesVues()">
+            <option value="journalier">Affichage Journalier (Par Date)</option>
+            <option value="mensuel">Affichage Mensuel (Par Mois)</option>
+            <option value="annuel">Affichage Annuel (Par Année)</option>
+        </select>
+        <div id="box-historique-filtre" style="color: var(--txt-dark);"></div>
+
+        <h2>🔐 Paramètres Secrets des Profils & Accès</h2>
+        <label>Nom Officiel du Gérant :</label>
+        <input type="text" id="config-nom-gerant" placeholder="Ex: KABUO Irène">
+        <label>Code Secret d'Accès Gérant :</label>
+        <input type="password" id="config-pass-gerant" placeholder="Nouveau mot de passe">
+        <hr style="border:0; border-top:1px dashed #475569; margin:10px 0;">
+        <label>Nom Officiel du Patron :</label>
+        <input type="text" id="config-nom-patron" placeholder="Ex: KABARE ERIC">
+        <label>Code Secret d'Accès Patron :</label>
+        <input type="password" id="config-pass-patron" placeholder="Nouveau mot de passe">
+        <button onclick="sauvegarderProfilsEtMotsDePasse()" class="btn" style="background:#64748b;">🔄 Enregistrer les Identités en Direct</button>
+
+        <button onclick="fermerSession()" class="btn" style="background:#475569; margin-top:15px;">🔒 Fermer l'Espace Patron</button>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- 📋 SITUATION DU STOCK - RECONSTRUITE EN DUR POUR MOBILE  -->
+    <!-- ======================================================= -->
+    <h2>📋 Situation Actuelle des Stocks de l'Hôtel</h2>
+    <div id="alertes-stock-global"></div>
+    <table>
+        <thead>
+            <tr>
+                <th>Article / Prestation</th>
+                <th>Quantité Restante</th>
+                <th>Prix de Vente (CDF)</th>
+            </tr>
+        </thead>
+        <tbody id="tbody-stock-global">
+            <!-- STRUCTURE RIGIDE : Impossible d'avoir des cases ou colonnes blanches -->
+            <tr>
+                <td><strong>Chambre Standard</strong></td>
+                <td><span id="stock-val-chambre-standard" class="badge" style="background:var(--primary);">0 restant(s)</span></td>
+                <td><strong>30 000 CDF</strong></td>
+            </tr>
+            <tr>
+                <td><strong>Chambre VIP</strong></td>
+                <td><span id="stock-val-chambre-vip" class="badge" style="background:var(--primary);">0 restant(s)</span></td>
+                <td><strong>75 000 CDF</strong></td>
+            </tr>
+            <tr>
+                <td><strong>Boisson Royale</strong></td>
+                <td><span id="stock-val-boisson-royale" class="badge" style="background:var(--primary);">0 restant(s)</span></td>
+                <td><strong>4 000 CDF</strong></td>
+            </tr>
+        </tbody>
+    </table>
+
+
+    <!-- ======================================================= -->
+    <!-- MOTORISATION JAVASCRIPT ET SECURES LOCAL LOGICS         -->
+    <!-- ======================================================= -->
+    <script>
+        let configuration = JSON.parse(localStorage.getItem('royal_config')) || {
+            nom_gerant: "KABUO Irène",
+            nom_patron: "KABARE ERIC",
+            pass_gerant: "gerant123",
+            pass_patron: "patron123"
+        };
+
+        let donnees = JSON.parse(localStorage.getItem('royal_donnees')) || {
+            ventes: [],
+            depenses: [],
+            dettes: [],
+            salaire_statut: "Non payé",
+            chambres: [
+                { numero: "101", type: "Standard", statut: "Libre", occupant: "" },
+                { numero: "102", type: "Standard", statut: "Libre", occupant: "" },
+                { numero: "201", type: "VIP", statut: "Libre", occupant: "" }
+            ],
+            stock: [
+                { nom: "Chambre Standard", quantite: 15, seuil: 3, prix_achat: 12000, prix_vente: 30000 },
+                { nom: "Chambre VIP", quantite: 5, seuil: 2, prix_achat: 25000, prix_vente: 75000 },
+                { nom: "Boisson Royale", quantite: 100, seuil: 15, prix_achat: 2000, prix_vente: 4000 }
+            ]
+        };
+
+        if (!localStorage.getItem('royal_donnees')) {
+            localStorage.setItem('royal_donnees', JSON.stringify(donnees));
+        }
+
+        let espaceSelectionne = "";
+
+        function obtenirDateDuJour() {
+            let d = new Date();
+            return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()}`;
+        }
+        function obtenirHeureActuelle() {
+            return new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+        }
+        document.getElementById('date-live').textContent = obtenirDateDuJour();
+
+        function ouvrirFenetreAuth(espace) {
+            espaceSelectionne = espace;
+            document.getElementById('nom-espace-auth').textContent = espace;
+            document.getElementById('zone-auth').style.display = "block";
+            document.getElementById('code-acces').value = "";
+        }
+
+        function authentifier() {
+            const code = document.getElementById('code-acces').value;
+            if (espaceSelectionne === "gerant" && code === configuration.pass_gerant) {
+                document.getElementById('espace-gerant').style.display = "block";
+                document.getElementById('zone-auth').style.display = "none";
+                rafraichirToutesLesVues();
+            } else if (espaceSelectionne === "patron" && code === configuration.pass_patron) {
+                document.getElementById('espace-patron').style.display = "block";
+                document.getElementById('zone-auth').style.display = "none";
+                rafraichirToutesLesVues();
+            } else {
+                alert("❌ Code d'accès incorrect !");
+            }
+        }
+
+        function fermerSession() {
+            document.getElementById('espace-gerant').style.display = "none";
+            document.getElementById('espace-patron').style.display = "none";
+        }
+
+        function enregistrerMemoire() {
+            localStorage.setItem('royal_donnees', JSON.stringify(donnees));
+        }
+
+        function ajouterVente(e) {
+            e.preventDefault();
+            const article = document.getElementById('vente-article').value;
+            const qte = parseInt(document.getElementById('vente-qte').value);
+            
+            if(!confirm(`❓ Validation : Enregistrer ${qte} x ${article} ?`)) return;
+
+            const idx = donnees.stock.findIndex(i => i.nom === article);
+            if(idx !== -1) {
+                if(donnees.stock[idx].quantite < qte) return alert("❌ Stock insuffisant !");
+                
+                donnees.stock[idx].quantite -= qte;
+                const beneficeUnitaire = donnees.stock[idx].prix_vente - donnees.stock[idx].prix_achat;
+
+                donnees.ventes.push({
+                    id: Date.now(),
+                    date: obtenirDateDuJour(),
+                    heure: obtenirHeureActuelle(),
+                    auteur: configuration.nom_gerant,
+                    article: article,
+                    quantite: qte,
+                    total: donnees.stock[idx].prix_vente * qte,
+                    benefice_total: beneficeUnitaire * qte 
+                });
+                enregistrerMemoire();
+                alert("✅ Enregistré dans la mémoire locale !");
+                rafraichirToutesLesVues();
+            }
+        }
+
+        function ajouterDepense(e) {
+            e.preventDefault();
+            const motif = document.getElementById('dep-motif').value;
+            const montant = parseFloat(document.getElementById('dep-montant').value);
+
+            if(!confirm(`❓ Validation : Confirmez-vous la dépense de ${montant.toLocaleString()} CDF ?`)) return;
+
+            donnees.depenses.push({
+                id: Date.now(),
+                date: obtenirDateDuJour(),
+                heure: obtenirHeureActuelle(),
+                auteur: configuration.nom_gerant,
+                motif: motif,
+                montant: montant
+            });
+            enregistrerMemoire();
+            alert("✅ Dépense enregistrée !");
+            rafraichirToutesLesVues();
+        }
+
+        function ajouterDette(e) {
+            e.preventDefault();
+            donnees.dettes.push({
+                id: Date.now(),
+                date: obtenirDateDuJour(),
+                heure: obtenirHeureActuelle(),
+                auteur: configuration.nom_gerant,
+                nom: document.getElementById('cred-nom').value,
+                tel: document.getElementById('cred-tel').value,
+                motif: document.getElementById('cred-motif').value,
+                montant: parseFloat(document.getElementById('cred-montant').value),
+                statut: "En attente"
+            });
+            enregistrerMemoire();
+            alert("✅ Dossier de dette créé !");
+            rafraichirToutesLesVues();
+        }
+
+        function ajusterStock(e) {
+            e.preventDefault();
+            const nom = document.getElementById('stk-nom').value.trim();
+            const qte = parseInt(document.getElementById('stk-qte').value);
+            const seuil = parseInt(document.getElementById('stk-seuil').value);
+            const achat = parseFloat(document.getElementById('stk-achat').value);
+            const vente = parseFloat(document.getElementById('stk-vente').value);
+
+            const idx = donnees.stock.findIndex(i => i.nom.toLowerCase() === nom.toLowerCase());
+            if(idx !== -1) {
+                donnees.stock[idx] = { nom: donnees.stock[idx].nom, quantite: qte, seuil: seuil, prix_achat: achat, prix_vente: vente };
+            } else {
+                donnees.stock.push({ nom: nom, quantite: qte, seuil: seuil, prix_achat: achat, prix_vente: vente });
+            }
+            enregistrerMemoire();
+            alert("✅ Catalogue d'usine mis à jour !");
+            rafraichirToutesLesVues();
+        }
+
+        function supprimerArticleDuStock() {
+            const nom = document.getElementById('stk-nom').value.trim();
+            if(confirm(`Supprimer l'article "${nom}" ?`)) {
+                donnees.stock = donnees.stock.filter(i => i.nom.toLowerCase() !== nom.toLowerCase());
+                enregistrerMemoire();
+                rafraichirToutesLesVues();
+            }
+        }
+
+        function modifierStatutChambre(numero) {
+            const idx = donnees.chambres.findIndex(c => c.numero === numero);
+            if(idx !== -1) {
+                if(donnees.chambres[idx].statut === "Libre") {
+                    let client = prompt("Nom du voyageur :");
+                    if(client) { donnees.chambres[idx].statut = "Occupée"; donnees.chambres[idx].occupant = client; }
+                } else {
+                    if(confirm("Libérer cette chambre ?")) { donnees.chambres[idx].statut = "Libre"; donnees.chambres[idx].occupant = ""; }
+                }
+                enregistrerMemoire();
+                rafraichirToutesLesVues();
+            }
+        }
+
+        function supprimerItemHistorique(type, id) {
+            if(confirm("🚨 Supprimer cette transaction définitivement de l'historique ?")) {
+                donnees[type] = donnees[type].filter(item => item.id !== id);
+                enregistrerMemoire();
+                rafraichirToutesLesVues();
+            }
+        }
+
+        function solderDetteLocale(id) {
+            if(confirm("💰 Cocher ce crédit comme réglé et encaissé ?")) {
+                const idx = donnees.dettes.findIndex(d => d.id === id);
+                if(idx !== -1) {
+                    donnees.dettes[idx].statut = "Soldé";
+                    enregistrerMemoire();
+                    rafraichirToutesLesVues();
+                    alert("Dette marquée comme 'Soldé' !");
+                }
+            }
+        }
+
+        function patronPayeSalaire() {
+            if(confirm("Libérer le salaire ?")) {
+                donnees.salaire_statut = "Versé";
+                enregistrerMemoire();
+                rafraichirToutesLesVues();
+            }
+        }
+        function gerantConfirmeSalaire() {
+            if(confirm("Confirmer la bonne réception ?")) {
+                donnees.salaire_statut = "Confirmé";
+                enregistrerMemoire();
+                rafraichirToutesLesVues();
+            }
+        }
+
+        function genererCodeSync() {
+            const chaine = btoa(unescape(encodeURIComponent(JSON.stringify(donnees))));
+            navigator.clipboard.writeText(chaine).then(() => alert("🔑 Rapport chiffré copié ! Collez-le sur WhatsApp pour le patron."));
+        }
+
+        function validerCodeSync() {
+            const code = document.getElementById('code-sync-patron').value.trim();
+            if(!code) return alert("Veuillez coller le code du gérant.");
+            try {
+                donnees = JSON.parse(decodeURIComponent(escape(atob(code))));
+                enregistrerMemoire();
+                rafraichirToutesLesVues();
+                alert("🔄 Rapport décodé et comptes d'usine mis à jour !");
+                document.getElementById('code-sync-patron').value = "";
+            } catch(e) { alert("❌ Code invalide ou altéré."); }
+        }
+
+        function sauvegarderProfilsEtMotsDePasse() {
+            const ng = document.getElementById('config-nom-gerant').value.trim();
+            const np = document.getElementById('config-nom-patron').value.trim();
+            const pg = document.getElementById('config-pass-gerant').value;
+            const pp = document.getElementById('config-pass-patron').value;
+
+            if(ng) configuration.nom_gerant = ng;
+            if(np) configuration.nom_patron = np;
+            if(pg) configuration.pass_gerant = pg;
+            if(pp) configuration.pass_patron = pp;
+
+            localStorage.setItem('royal_config', JSON.stringify(configuration));
+            alert("🔒 Noms et codes d'accès modifiés en direct !");
+            rafraichirToutesLesVues();
+        }
+
+        // --- ENGIN DE CORRECTION COMPTABLE ET REMPLISSAGE STRICT PAR IDENTIFIANTS BIEN DIRIGÉS ---
+        function rafraichirToutesLesVues() {
+            document.getElementById('label-nom-gerant-live').textContent = configuration.nom_gerant;
+            document.getElementById('label-nom-patron-live').textContent = configuration.nom_patron;
+
+            const selectVente = document.getElementById('vente-article');
+            if(selectVente) {
+                selectVente.innerHTML = donnees.stock.map(i => `
+                    <option value="${i.nom}">${i.nom} [Prix: ${i.prix_vente.toLocaleString()} CDF] (Dispo: ${i.quantite})</option>
+                `).join('');
+            }
+
+            // MODIFICATION PAR ID : Remplissage direct sans toucher à la structure HTML
+            let htmlAlertes = "";
+            donnees.stock.forEach(i => {
+                let critique = i.quantite <= i.seuil;
+                if(critique) htmlAlertes += `<div class="alert-stock">⚠️ ALERTE STOCK : Prestation ou article "${i.nom}" presque épuisé (${i.quantite} restant) !</div>`;
+                
+                // Ciblage ciblé par ID pour les 3 éléments d'origine
+                let targetId = "";
+                if(i.nom === "Chambre Standard") targetId = "stock-val-chambre-standard";
+                if(i.nom === "Chambre VIP") targetId = "stock-val-chambre-vip";
+                if(i.nom === "Boisson Royale") targetId = "stock-val-boisson-royale";
+                
+                let elementCase = document.getElementById(targetId);
+                if(elementCase) {
+                    elementCase.textContent = `${i.quantite} restant(s)`;
+                    elementCase.style.background = critique ? "var(--danger)" : "var(--primary)";
+                }
+            });
+            document.getElementById('alertes-stock-global').innerHTML = htmlAlertes;
+
+            // Remplissage Espace Patron
+            const tbodyPatron = document.getElementById('tbody-stock-patron');
+            if(tbodyPatron) {
+                tbodyPatron.innerHTML = donnees.stock.map(i => `
+                    <tr><td>${i.nom}</td><td><strong>${i.quantite}</strong></td><td>${i.seuil}</td><td>${i.prix_achat.toLocaleString()}</td><td>${i.prix_vente.toLocaleString()}</td></tr>
+                `).join('');
+            }
+
+            // Calculs comptables d'usine réparés
+            const totVentes = donnees.ventes.reduce((s, i) => s + i.total, 0);
+            const totDepenses = donnees.depenses.reduce((s, i) => s + i.montant, 0);
+            const valeurStockRestant = donnees.stock.reduce((s, i) => s + (i.quantite * i.prix_achat), 0);
+            const totDettesAttente = donnees.dettes.reduce((s, i) => s + (i.statut === "En attente" ? Number(i.montant) : 0), 0);
+            
+            const cumulBeneficeVentes = donnees.ventes.reduce((s, i) => s + (i.benefice_total || 0), 0);
+            const beneficeNetReelCalcul = cumulBeneficeVentes - totDepenses;
+
+            document.getElementById('dash-ventes').textContent = totVentes.toLocaleString('fr-FR') + " CDF";
+            document.getElementById('dash-depenses').textContent = totDepenses.toLocaleString('fr-FR') + " CDF";
+            document.getElementById('dash-stock').textContent = valeurStockRestant.toLocaleString('fr-FR') + " CDF";
+            document.getElementById('dash-dettes').textContent = totDettesAttente.toLocaleString('fr-FR') + " CDF";
+            document.getElementById('dash-benefice').textContent = beneficeNetReelCalcul.toLocaleString('fr-FR') + " CDF";
+
+            if(donnees.salaire_statut === "Non payé") {
+                document.getElementById('status-salaire-patron').innerHTML = "❌ Non versé.";
+                document.getElementById('msg-salaire-gerant').innerHTML = "⌛ Aucun versement reçu.";
+                document.getElementById('btn-confirmer-salaire').style.display = "none";
+            } else if(donnees.salaire_statut === "Versé") {
+                document.getElementById('status-salaire-patron').innerHTML = "⏳ Salaire versé. En attente de confirmation.";
+                document.getElementById('msg-salaire-gerant').innerHTML = "💵 Message du Patron : Votre salaire a été versé !";
+                document.getElementById('btn-confirmer-salaire').style.display = "block";
+            } else {
+                document.getElementById('status-salaire-patron').innerHTML = "✅ Reçu et clôturé.";
+                document.getElementById('msg-salaire-gerant').innerHTML = "✅ Salaire reçu.";
+                document.getElementById('btn-confirmer-salaire').style.display = "none";
+            }
+
+            const tbodyDettes = document.getElementById('tbody-dettes-gerant');
+            if(tbodyDettes) {
+                tbodyDettes.innerHTML = donnees.dettes.map(d => `
+                    <tr>
+                        <td>${d.nom}</td>
+                        <td>${d.motif}</td>
+                        <td><strong>${d.montant.toLocaleString()} CDF</strong></td>
+                        <td>
+                            ${d.statut === 'En attente' ? 
+                            `<button onclick="solderDetteLocale(${d.id})" style="background:var(--success); color:white; border:none; padding:4px; border-radius:4px; font-size:11px; cursor:pointer;">💰 Coucher Payé</button>` : 
+                            `<span class="badge" style="background:var(--success);">✅ Soldé</span>`}
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            const boxChambres = document.getElementById('box-chambres-gerant');
+            if(boxChambres) {
+                boxChambres.innerHTML = donnees.chambres.map(ch => `
+                    <div onclick="modifierStatutChambre('${ch.numero}')" style="border:1px solid #cbd5e1; padding:6px; font-size:12px; background:#fff; text-align:center; min-width:70px; flex:1; cursor:pointer;">
+                        <strong>Ch. ${ch.numero}</strong><br>
+                        <span style="display:inline-block; padding:1px 4px; background:${ch.statut === 'Libre' ? 'var(--success)':'var(--danger)'}; color:white; font-size:9px; border-radius:3px;">${ch.statut}</span>
+                        ${ch.occupant ? `<div style="font-size:9px; font-weight:bold; overflow:hidden;">👤 ${ch.occupant}</div>` : ''}
+                    </div>
+                `).join('');
+            }
+
+            // --- FILTRAGE CHRONOLOGIQUE DES TRANSFERS ---
+            const modeFiltre = document.getElementById('filtre-historique-mode').value;
+            const boxFiltre = document.getElementById('box-historique-filtre');
+            if(!boxFiltre) return;
+            boxFiltre.innerHTML = "";
+
+            let groupes = {};
+
+            function obtenirCleTemporelle(dateTxt, mode) {
+                let parts = dateTxt.split('/'); 
+                if(parts.length !== 3) return "Inconnu";
+                if(mode === "mensuel") return `Mois : ${parts[1]}/${parts[2]}`;
+                if(mode === "annuel") return `Année : ${parts[2]}`;
+                return `Date : ${dateTxt}`;
+            }
+
+            donnees.ventes.forEach(v => {
+                let cle = obtenirCleTemporelle(v.date, modeFiltre);
+                if(!groupes[cle]) groupes[cle] = { ventes: 0, depenses: 0, items: [] };
+                groupes[cle].ventes += v.total;
+                groupes[cle].items.push({ type: 'ventes', id: v.id, txt: `🛒 Vente : ${v.quantite} x ${v.article} (+${v.total.toLocaleString()} CDF) <span style="color:#475569;">(par ${v.auteur} à ${v.heure})</span>` });
+            });
+
+            donnees.depenses.forEach(d => {
+                let cle = obtenirCleTemporelle(d.date, modeFiltre);
+                if(!groupes[cle]) groupes[cle] = { ventes: 0, depenses: 0, items: [] };
+                groupes[cle].depenses += d.montant;
+                groupes[cle].items.push({ type: 'depenses', id: d.id, txt: `📉 Dépense : ${d.motif} (-${d.montant.toLocaleString()} CDF) <span style="color:#475569;">(par ${d.auteur} à ${d.heure})</span>` });
+            });
+
+            donnees.dettes.forEach(c => {
+                let cle = obtenirCleTemporelle(c.date, modeFiltre);
+                if(!groupes[cle]) groupes[cle] = { ventes: 0, depenses: 0, items: [] };
+                groupes[cle].items.push({ type: 'dettes', id: c.id, txt: `🧮 Dette Client [${c.statut}] : ${c.nom} (${c.montant.toLocaleString()} CDF) <span style="color:#475569;">(par ${c.auteur} à ${c.heure})</span>` });
+            });
+
+            for(let clef in groupes) {
+                let bloc = document.createElement('div');
+                bloc.style = "background:#fff; border:1px solid #cbd5e1; padding:10px; border-radius:6px; margin-bottom:8px;";
+                
+                let recJour = groupes[clef].ventes;
+                let depJour = groupes[clef].depenses;
+                let netJour = recJour - depJour;
+
+                bloc.innerHTML = `
+                    <strong style="color:var(--primary); font-size:13px; display:block; border-bottom:1px solid #eee; padding-bottom:3px;">📅 ${clef}</strong>
+                    <div style="font-size:11px; margin:3px 0; color:#475569; font-weight:bold;">
+                        💰 Recettes : <span style="color:var(--success);">${recJour.toLocaleString()} CDF</span> | 
+                        📉 Dépenses : <span style="color:var(--danger);">${depJour.toLocaleString()} CDF</span> | 
+                        💎 Solde Net : <span style="color:var(--primary);">${netJour.toLocaleString()} CDF</span>
+                    </div>
+                `;
+
+                groupes[clef].items.forEach(op => {
+                    let lig = document.createElement('div');
+                    lig.style = "display:flex; justify-content:space-between; align-items:center; font-size:12px; margin:3px 0; padding:4px; background:#f8fafc; border-radius:4px; border:1px solid #e2e8f0;";
+                    
+                    let spn = document.createElement('span');
+                    spn.innerHTML = op.txt;
+                    lig.appendChild(spn);
+
+                    let act = document.createElement('div');
+                    act.style = "display:flex; gap:3px;";
+
+                    let bSu = document.createElement('button');
+                    bSu.textContent = "❌";
+                    bSu.style = "background:var(--danger); color:white; border:none; padding:2px 5px; font-size:10px; cursor:pointer; border-radius:3px;";
+                    bSu.onclick = () => { supprimerItemHistorique(op.type, op.id); };
+                    act.appendChild(bSu);
+
+                    lig.appendChild(act);
+                    bloc.appendChild(lig);
+                });
+                boxFiltre.appendChild(bloc);
+            }
+            if(Object.keys(groupes).length === 0) {
+                boxFiltre.innerHTML = "<div style='font-size:12px; color:#64748b; text-align:center;'>Aucune transaction à afficher. Veuillez importer un rapport gérant.</div>";
+            }
+        }
+
+        // Appel forcé d'activation immédiate
+        rafraichirToutesLesVues();
+    </script>
+</body>
+</html>
