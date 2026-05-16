@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👑 Système Royal - Gestion Hôtel Luxe</title>
+    
+    <!-- Intégration Supabase officielle sans perturber le téléphone -->
+    <script src="https://jsdelivr.net"></script>
+
+    <style>
+        /* Votre style d'origine ultra-léger et fluide pour l'écran des téléphones */
+        body { font-family: sans-serif; margin: 0; padding: 10px; background: #fff; color: #000; }
+        h1, h2 { font-size: 18px; margin-top: 15px; margin-bottom: 5px; }
+        label { display: block; margin-top: 8px; font-weight: bold; font-size: 14px; }
+        input, select { width: 100%; padding: 8px; margin-bottom: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; }
+        .btn { width: 100%; padding: 10px; color: white; border: none; border-radius: 4px; font-weight: bold; font-size: 14px; cursor: pointer; margin-top: 5px; }
+        .grid-inputs { display: flex; gap: 5px; }
+    </style>
+</head>
+<body>
+
+    <h1>👑 Système Royal - Hôtel</h1>
+    
+    <h2>🔐 Zone Sécurisée Personnel</h2>
+    <p style="font-size:13px; margin:2px 0;">Sélectionnez votre espace :</p>
+    <div class="grid-inputs">
+        <button class="btn" style="background:#3b82f6; padding:6px;">🛒 ESPACE GÉRANT</button>
+        <button class="btn" style="background:#10b981; padding:6px;">📊 ESPACE PATRON</button>
+    </div>
+
+    <label>Code d'accès secret :</label>
+    <input type="password" id="code-acces" placeholder="Code secret...">
+    <button class="btn" style="background:#4b5563;">🔓 Ouvrir la session</button>
+
+    <p style="margin:8px 0; font-size:14px;">👤 Gérant Actuel : <strong>KABUO Irène</strong></p>
+    <p style="margin:5px 0; font-size:14px;">📅 Date de l'opération en cours : <span id="date-live">--/--/----</span></p>
+
+    <button id="btn-whatsapp" class="btn" style="background:#25d366;">📱 Transmettre le rapport complet (WhatsApp)</button>
+    <button id="btn-cloture" class="btn" style="background:#ef4444;">🔒 Effectuer la clôture de caisse du soir</button>
+
+    <!-- Formulaire Vente -->
+    <h2>🛒 Enregistrer une Vente ou Location</h2>
+    <form id="form-vente">
+        <label>Sélectionner la prestation :</label>
+        <select id="vente-article" required>
+            <option value="Chambre Standard">Chambre Standard</option>
+            <option value="Chambre VIP">Chambre VIP</option>
+            <option value="Boisson Royale">Boisson Royale</option>
+        </select>
+        <label>Quantité ou Nombre de nuitées :</label>
+        <input type="number" id="vente-qte" value="1" min="1" required>
+        <button type="submit" class="btn" style="background:#3b82f6;">🚀 Enregistrer l'opération</button>
+    </form>
+
+    <!-- Formulaire Dépense -->
+    <h2>📉 Déclarer une Dépense Caisse</h2>
+    <form id="form-depense">
+        <label>Motif de la dépense :</label>
+        <input type="text" id="dep-motif" placeholder="Ex: Braises" required>
+        <label>Montant (CDF) :</label>
+        <input type="number" id="dep-montant" placeholder="Montant CDF" required>
+        <button type="submit" class="btn" style="background:#ef4444;">💸 Sortie de fonds</button>
+    </form>
+    <!-- 🧮 Gestion des Crédits & Dettes -->
+    <h2>🧮 Gestion des Crédits & Dettes</h2>
+    <form id="form-credit" onsubmit="validerAvantFormulaire(event, 'credit')">
+        <label>Nom du débiteur :</label>
+        <input type="text" id="cred-nom" placeholder="Ex: Mr Kasongo" required>
+        <label>Contact Téléphone :</label>
+        <input type="text" id="cred-tel" placeholder="Ex: 099..." required>
+        <label>Motif de la dette :</label>
+        <input type="text" id="cred-motif" placeholder="Ex: Reste Chambre 102" required>
+        <label>Montant de the dette (CDF) :</label>
+        <input type="number" id="cred-montant" required>
+        <label>Date de sortie prévue :</label>
+        <input type="date" id="cred-sortie" required>
+        <button type="submit" class="btn" style="background:#f59e0b;">⚠️ Enregistrer la dette</button>
+    </form>
+
+    <!-- 🛏️ État d'Entretien des Chambres -->
+    <h2>🛏️ État d'Entretien des Chambres</h2>
+    <div id="box-chambres-gerant" style="display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px;"></div>
+
+    <!-- 📈 Tableau de Bord Financier Simplifié Mobile -->
+    <h2>📈 Tableau de Bord Financier</h2>
+    <p style="font-size:13px; margin:2px 0;">👑 Patron en ligne : <strong>KABARE ERIC</strong></p>
+    
+    <div style="font-size: 14px; line-height: 1.6; background:#f9f9f9; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+        <div>💼 <strong>Valeur Stock :</strong> <span id="dash-stock">0</span> CDF</div>
+        <div>💰 <strong>Ventes Brutes :</strong> <span id="dash-ventes">0</span> CDF</div>
+        <div>📉 <strong>Total Dépenses :</strong> <span id="dash-depenses">0</span> CDF</div>
+        <div style="border-top: 1px solid #ccc; margin-top: 5px; padding-top: 5px; font-weight: bold;">
+            💎 Bénéfice Réel Net : <span id="dash-benefice">0</span> CDF
+        </div>
+    </div>
+
+    <!-- 📥 Réception Caisse Automatique -->
+    <h2>📥 Réception Caisse (Texte du Gérant) :</h2>
+    <textarea id="reception-caisse" readonly style="width:100%; height:90px; font-family:monospace; font-size:12px; box-sizing:border-box; padding:5px; background:#fff; border:1px solid #ccc;"></textarea>
+    <button onclick="actualiserToutLeDashboard()" class="btn" style="background:#6b7280;">🔄 Actualiser tout mon Tableau de Bord</button>
+
+    <!-- 📦 Gestion des Articles & Prix -->
+    <h2>📦 Gestion des Articles & Prix (Réservé Patron)</h2>
+    <form id="form-stock">
+        <label>Nom de l'article :</label>
+        <input type="text" id="stk-nom" required>
+        <label>Stock initial :</label>
+        <input type="number" id="stk-qte" required>
+        <label>Prix Achat (CDF) :</label>
+        <input type="number" id="stk-achat" required>
+        <label>Prix Vente (CDF) :</label>
+        <input type="number" id="stk-vente" required>
+        <button type="submit" class="btn" style="background:#10b981;">💾 Enregistrer / Ajuster l'article</button>
+    </form>
+
+    <h2>🔐 Configuration des Identités & Accès</h2>
+    <select id="config-role">
+        <option value="patron">Espace Patron (KABARE ERIC)</option>
+        <option value="gerant">Espace Gérant (KABUO Irène)</option>
+    </select>
+    <label>Nom Officiel :</label>
+    <input type="text" id="config-nom">
+    <label>Code Secret (Mot de passe) :</label>
+    <input type="password" id="config-pass">
+    <button type="button" class="btn" style="background:#4b5563;">🔄 Mettre à jour l'identité & l'accès</button>
+
+    <h2>📅 Calendrier Historique des Opérations (Modifiable)</h2>
+    <div id="box-historique-live" style="font-size:13px; color:#555;"></div>
+
+    <button class="btn" style="background:#374151;">🔒 Fermer la session</button>
+    
+    <!-- 📋 Situation Actuelle des Stocks Live -->
+    <h2>📋 Situation Actuelle des Stocks Live</h2>
+    <div id="box-stocks-live" style="font-size:14px; background:#fefefe; padding:8px; border:1px solid #ccc; border-radius:4px; line-height:1.6;">
+        Chargement des stocks en direct...
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- LOGIQUE DE SYNCHRONISATION NETTOYÉE ET CORRIGÉE          -->
+    <!-- ======================================================= -->
+    <script>
+        // Configuration initiale des identifiants fournis
+        const SUPABASE_URL = "https://supabase.co";
+        const SUPABASE_KEY = "sb_publishable_6eSoAXRt0v8lRhEHHFn1Wg_6okZQjG5";
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        function obtenirDateDuJour() {
+            let d = new Date();
+            return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()}`;
+        }
+        function obtenirHeureActuelle() {
+            return new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        document.getElementById('date-live').textContent = obtenirDateDuJour();
+
+        // 1. Enregistrement des Ventes (🚀) avec prix récupérés en direct depuis votre table stock SQL
+        document.getElementById('form-vente').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const article = document.getElementById('vente-article').value;
+            const qte = parseInt(document.getElementById('vente-qte').value);
+            
+            // Récupère le prix de vente configuré dans la table public.stock
+            const { data: stData } = await supabase.from('stock').select('prix_vente').eq('nom', article).single();
+            let prixVente = stData ? parseFloat(stData.prix_vente) : (article === "Chambre VIP" ? 75000 : (article === "Chambre Standard" ? 30000 : 4000));
+            const total = prixVente * qte;
+
+            const { error } = await supabase.from('ventes').insert([{
+                article: article, quantite: qte, total: total,
+                date_complete: new Date().toISOString().split('T')[0], heure: obtenirHeureActuelle()
+            }]);
+
+            if(!error) { alert("🚀 Vente enregistrée !"); document.getElementById('form-vente').reset(); }
+        });
+
+        // 2. Enregistrement des Dépenses (💸)
+        document.getElementById('form-depense').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const { error } = await supabase.from('depenses').insert([{
+                motif: document.getElementById('dep-motif').value,
+                montant: parseFloat(document.getElementById('dep-montant').value),
+                date_complete: new Date().toISOString().split('T')[0], heure: obtenirHeureActuelle()
+            }]);
+            if(!error) { alert("💸 Sortie enregistrée !"); document.getElementById('form-depense').reset(); }
+        });
+
+        // 3. Enregistrement des Crédits (⚠️)
+        async function validerAvantFormulaire(event, type) {
+            event.preventDefault();
+            if (type === 'credit') {
+                const { error } = await supabase.from('credits').insert([{
+                    nom_client: document.getElementById('cred-nom').value,
+                    telephone: document.getElementById('cred-tel').value,
+                    motif: document.getElementById('cred-motif').value,
+                    montant: parseFloat(document.getElementById('cred-montant').value),
+                    date_sortie_prevue: document.getElementById('cred-sortie').value,
+                    statut: 'En attente', date_complete: new Date().toISOString().split('T')[0], heure: obtenirHeureActuelle()
+                }]);
+                if(!error) { alert("⚠️ Dette ajoutée !"); document.getElementById('form-credit').reset(); }
+            }
+        }
+
+        // 4. Ajout ou Ajustement de produit dans la table stock par le Patron
+        document.getElementById('form-stock').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nom = document.getElementById('stk-nom').value;
+            const qte = parseInt(document.getElementById('stk-qte').value);
+            const achat = parseFloat(document.getElementById('stk-achat').value);
+            const vente = parseFloat(document.getElementById('stk-vente').value);
+
+            const { error } = await supabase.from('stock').upsert({
+                nom: nom, quantite: qte, prix_achat: achat, prix_vente: vente
+            });
+            if(!error) { alert("📦 Stock mis à jour !"); document.getElementById('form-stock').reset(); }
+        });
+
+        // 5. Écoute active Realtime pour mettre à jour instantanément les téléphones
+        supabase.channel('hotel-royal-live-channel')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'ventes' }, () => { actualiserToutLeDashboard(); })
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'depenses' }, () => { actualiserToutLeDashboard(); })
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'chambres' }, () => { chargerChambresLive(); })
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'stock' }, () => { actualiserToutLeDashboard(); })
+            .subscribe();
+
+        // 6. CALCULS CORRIGÉS ET AFFICHAGE DES STOCKS LIVE
+        async function actualiserToutLeDashboard() {
+            const { data: v } = await supabase.from('ventes').select('total');
+            const { data: d } = await supabase.from('depenses').select('montant');
+            const { data: s } = await supabase.from('stock').select('nom, quantite, prix_achat, prix_vente');
+
+            // Conversion forcée en nombres pour éviter les erreurs de calcul sur téléphone
+            const totVentes = v ? v.reduce((sum, item) => sum + Number(item.total), 0) : 0;
+            const totDepenses = d ? d.reduce((sum, item) => sum + Number(item.montant), 0) : 0;
+            const totStock = s ? s.reduce((sum, item) => sum + (Number(item.quantite) * Number(item.prix_achat)), 0) : 0;
+            const net = totVentes - totDepenses;
+
+            document.getElementById('dash-ventes').textContent = totVentes.toLocaleString('fr-FR');
+            document.getElementById('dash-depenses').textContent = totDepenses.toLocaleString('fr-FR');
+            document.getElementById('dash-stock').textContent = totStock.toLocaleString('fr-FR');
+            document.getElementById('dash-benefice').textContent = net.toLocaleString('fr-FR');
+
+            // Génération propre de l'affichage Situation Actuelle des Stocks Live
+            const boxStock = document.getElementById('box-stocks-live');
+            if(boxStock && s) {
+                if (s.length === 0) {
+                    boxStock.innerHTML = "Aucun article en stock.";
+                } else {
+                    boxStock.innerHTML = s.map(item => 
+                        `<div>📦 <strong>${item.nom}</strong> : ${item.quantite} dispo (Vente: ${Number(item.prix_vente).toLocaleString('fr-FR')} CDF)</div>`
+                    ).join('');
+                }
+            }
+
+            // Rapport Caisse Gérant automatique
+            let rapport = `--- HÔTEL ROYAL ---\nDate: ${obtenirDateDuJour()}\nVentes Brutes: ${totVentes.toLocaleString('fr-FR')} CDF\nDépenses: ${totDepenses.toLocaleString('fr-FR')} CDF\nNet: ${net.toLocaleString('fr-FR')} CDF`;
+            document.getElementById('reception-caisse').value = rapport;
+        }
+
+        // 7. Affichage synchrone des Chambres
+        async function chargerChambresLive() {
+            const conteneur = document.getElementById('box-chambres-gerant');
+            const { data: list } = await supabase.from('chambres').select('*').order('numero', { ascending: true });
+            if(list && conteneur) {
+                conteneur.innerHTML = '';
+                list.forEach(ch => {
+                    let col = ch.statut === 'Libre' ? '#10b981' : '#ef4444';
+                    const div = document.createElement('div');
+                    div.style = `border:1px solid #ccc; padding:6px; font-size:12px; border-radius:4px; background:#fff; text-align:center; min-width:75px;`;
+                    div.innerHTML = `<strong>Ch. ${ch.numero}</strong><br><span style="padding:1px 4px; background:${col}; color:white; font-size:10px; border-radius:3px;">${ch.statut}</span>`;
+                    conteneur.appendChild(div);
+                });
+            }
+        }
+
+        window.addEventListener('load', () => {
+            actualiserToutLeDashboard();
+            chargerChambresLive();
+        });
+    </script>
+</body>
+</html>
